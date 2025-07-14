@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sales Module</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input, select { margin: 5px; padding: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+  </style>
+</head>
+<body>
+
+  <h1>Sales Module</h1>
+
+  <h2>Add New Sale</h2>
+  <form id="saleForm">
+    <select id="customerName" required>
+      <option value="">-- Select Customer --</option>
+    </select> 
+    <div id="itemInputs">
+      <select id="productName">
+        <option value="">-- Select Product --</option>
+      </select>
+      <input type="number" id="quantity" placeholder="Quantity" />
+      <input type="number" id="price" placeholder="Price" readonly />
+      <button type="button" id="addItemBtn">Add Item</button>
+    </div>
+    <table id="itemsTable" style="margin-top:10px; display:none;">
+      <thead>
+        <tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th><th>Remove</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <select id="status">
+      <option value="paid">Paid</option>
+      <option value="unpaid">Unpaid</option>
+      <option value="pending">Pending</option>
+    </select>
+    <button type="submit">Add Sale</button>
+  </form>
+
+  <h2>All Sales</h2>
+  <table id="salesTable">
+    <thead>
+      <tr>
+        <th>Customer</th>
+        <th>Product</th>
+        <th>Qty</th>
+        <th>Price</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const form = document.getElementById("saleForm");
+    const tableBody = document.querySelector("#salesTable tbody");
+    let currentItems = [];
+    const itemsTable = document.getElementById("itemsTable");
+    const itemsTableBody = itemsTable.querySelector("tbody");
+    document.getElementById("addItemBtn").addEventListener("click", function(e) {
+      e.preventDefault();
+      const productName = document.getElementById("productName").value;
+      const quantity = parseInt(document.getElementById("quantity").value);
+      const price = parseFloat(document.getElementById("price").value);
+      if (!productName || !quantity || !price) {
+        alert("Please select product, quantity, and price.");
+        return;
+      }
+      currentItems.push({ productName, quantity, price });
+      updateItemsTable();
+      document.getElementById("productName").value = "";
+      document.getElementById("quantity").value = "";
+      document.getElementById("price").value = "";
+    });
+    function updateItemsTable() {
+      itemsTableBody.innerHTML = "";
+      let total = 0;
+      currentItems.forEach((item, idx) => {
+        const row = document.createElement("tr");
+        const subtotal = item.quantity * item.price;
+        total += subtotal;
+        row.innerHTML = `
+          <td>${item.productName}</td>
+          <td>${item.quantity}</td>
+          <td>${item.price}</td>
+          <td>${subtotal}</td>
+          <td><button type="button" onclick="removeItem(${idx})">Remove</button></td>
+        `;
+        itemsTableBody.appendChild(row);
+      });
+      itemsTable.style.display = currentItems.length ? "table" : "none";
+    }
+    window.removeItem = function(idx) {
+      currentItems.splice(idx, 1);
+      updateItemsTable();
+    }
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!currentItems.length) {
+        alert("Add at least one item to the sale.");
+        return;
+      }
+      const sale = {
+        customerName: document.getElementById("customerName").value,
+        items: currentItems,
+        totalAmount: currentItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+        status: document.getElementById("status").value
+      };
+      const res = await fetch("/api/sales", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(sale)
+      });
+      if (res.ok) {
+        alert("Sale added!");
+        form.reset();
+        currentItems = [];
+        updateItemsTable();
+        loadSales(); // reload table
+      } else {
+        alert("Error adding sale.");
+      }
+    });
+
+    async function loadSales() {
+      const res = await fetch("/api/sales");
+      const data = await res.json();
+
+      tableBody.innerHTML = "";
+      data.forEach(sale => {
+        let itemsHtml = sale.items.map(item =>
+          `<div>${item.productName} (x${item.quantity} @ ${item.price})</div>`
+        ).join("");
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${sale.customerName}</td>
+          <td>${itemsHtml}</td>
+          <td>${sale.items.map(i=>i.quantity).join('<br>')}</td>
+          <td>${sale.items.map(i=>i.price).join('<br>')}</td>
+          <td>${sale.totalAmount}</td>
+          <td>${sale.status}</td>
+            <td>
+            <button onclick="editSale('${sale._id}')">Edit</button>
+            <button onclick="deleteSale('${sale._id}')">Delete</button>
+            </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+    async function deleteSale(id){
+        const res = await fetch(`/api/sales/${id}`,{
+            method: 'DELETE'})
+
+            if (res.ok){
+                alert("sale deleted")
+                loadSales();
+            }
+            else{
+                alert("error deleting sale")
+            }
+    }
+
+    async function editSale(id){
+        const saleres = await fetch(`/api/sales/${id}`)
+        const sale = await saleres.json();
+
+        const newCustomer = prompt("Edit customer name:", sale.customerName);
+        const newProduct = prompt("Edit product name:", sale.items[0].productName);
+        const newQty = prompt("Edit quantity:", sale.items[0].quantity);
+        const newPrice = prompt("Edit price:", sale.items[0].price);
+        const newStatus = prompt("Edit status (Paid, Unpaid, Pending):", sale.status);
+
+        if (!newCustomer || !newProduct || !newQty || !newPrice || !newStatus) {
+      alert("All fields are required.");
+      return;
+    }
+
+    const updated = {
+      customerName: newCustomer,
+      items: [{
+        productName: newProduct,
+        quantity: parseInt(newQty),
+        price: parseFloat(newPrice)
+      }],
+      totalAmount: parseInt(newQty) * parseFloat(newPrice),
+      status: newStatus
+    };
+
+    const res = await fetch(`/api/sales/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updated)
+    });
+
+    if (res.ok) {
+      alert("Sale updated!");
+      loadSales();
+    } else {
+      alert("Error updating sale.");
+    }
+  }
+
+  async function loadCustomers() {
+  const res = await fetch("/api/customers");
+  const customers = await res.json();
+  const dropdown = document.getElementById("customerName");
+  
+  dropdown.innerHTML = '<option value="">-- Select Customer --</option>'; // reset
+
+  customers.forEach(customer => {
+    const option = document.createElement("option");
+    option.value = customer.name;
+    option.textContent = customer.name + (customer.company ? ` (${customer.company})` : "");
+    dropdown.appendChild(option);
+  });
+}
+
+let productMap = {}; // map to store productName -> price
+
+async function loadProducts() {
+  const res = await fetch("/api/products");
+  const products = await res.json();
+  const dropdown = document.getElementById("productName");
+
+  dropdown.innerHTML = '<option value="">-- Select Product --</option>';
+  productMap = {}; // clear map
+
+  products.forEach(product => {
+    const option = document.createElement("option");
+    option.value = product.name;
+    option.textContent = `${product.name} (₹${product.price})`;
+    dropdown.appendChild(option);
+
+    productMap[product.name] = product.price; // store for price lookup
+  });
+}
+
+document.getElementById("productName").addEventListener("change", (e) => {
+  const selectedProduct = e.target.value;
+  const price = productMap[selectedProduct] || "";
+  document.getElementById("price").value = price;
+});
+
+
+const sale = {
+  customerName: document.getElementById("customerName").value,
+  items: [{
+    productName: document.getElementById("productName").value,
+    quantity: parseInt(document.getElementById("quantity").value),
+    price: parseFloat(document.getElementById("price").value)
+  }],
+  totalAmount: parseFloat(document.getElementById("price").value) *
+               parseInt(document.getElementById("quantity").value),
+  status: document.getElementById("status").value
+};
+
+
+    loadSales(); // initial load
+    loadCustomers(); // load customers for dropdown
+    loadProducts();
+  </script>
+
+</body>
+</html>
+

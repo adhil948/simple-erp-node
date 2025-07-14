@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reports Dashboard</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f0f0f0; }
+    h1 { margin-bottom: 20px; }
+    .card { background: white; padding: 15px; margin: 10px 0; border-left: 5px solid #007bff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+    ul { padding-left: 20px; }
+  </style>
+</head>
+<body>
+
+  <h1>Reports Dashboard</h1>
+
+  <div class="grid">
+    <div class="card" id="totalSales">Total Sales: ₹...</div>
+    <div class="card" id="totalCustomers">Total Customers: ...</div>
+    <div class="card" id="totalProducts">Total Products: ...</div>
+    <div class="card" id="inventoryValue">Inventory Value: ₹...</div>
+  </div>
+
+  <div class="card">
+    <h3>Top Selling Products</h3>
+    <ul id="topProducts"></ul>
+  </div>
+
+  <script>
+    async function loadReport() {
+      const res = await fetch("/api/reports/summary");
+      const data = await res.json();
+
+      document.getElementById("totalSales").textContent = `Total Sales: ₹${data.totalSales}`;
+      document.getElementById("totalCustomers").textContent = `Total Customers: ${data.totalCustomers}`;
+      document.getElementById("totalProducts").textContent = `Total Products: ${data.totalProducts}`;
+      document.getElementById("inventoryValue").textContent = `Inventory Value: ₹${data.totalInventoryValue}`;
+
+      const topList = document.getElementById("topProducts");
+      topList.innerHTML = "";
+      data.topProducts.forEach(p => {
+        const li = document.createElement("li");
+        li.textContent = `${p.productName} - ${p.totalQty} sold`;
+        topList.appendChild(li);
+      });
+    }
+
+    loadReport();
+  </script>
+
+</body>
+</html>

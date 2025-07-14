@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Customer Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    h1 { margin-bottom: 10px; }
+    select { padding: 6px; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
+    th, td { padding: 8px; border: 1px solid #ccc; }
+    th { background: #f0f0f0; }
+    .summary { margin-top: 20px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h1>Customer Sales Dashboard</h1>
+
+  <label for="customerSelect">Select Customer:</label>
+  <select id="customerSelect">
+    <option value="">-- Select Customer --</option>
+  </select>
+
+  <table id="salesTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Products</th>
+        <th>Qty</th>
+        <th>Price</th>
+        <th>Total</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="summary" id="summary" style="display:none;"></div>
+
+  <script>
+    const customerDropdown = document.getElementById("customerSelect");
+    const salesTable = document.getElementById("salesTable");
+    const salesTableBody = salesTable.querySelector("tbody");
+    const summaryDiv = document.getElementById("summary");
+
+    async function loadCustomers() {
+      const res = await fetch("/api/customers");
+      const customers = await res.json();
+      customers.forEach(c => {
+        const option = document.createElement("option");
+        option.value = c.name;
+        option.textContent = c.name;
+        customerDropdown.appendChild(option);
+      });
+    }
+
+    async function loadSalesForCustomer(customerName) {
+      const res = await fetch("/api/sales");
+      const sales = await res.json();
+
+      const filtered = sales.filter(sale => sale.customerName === customerName);
+      salesTableBody.innerHTML = "";
+
+      let totalSpent = 0;
+
+      filtered.forEach(sale => {
+        const row = document.createElement("tr");
+        const itemNames = sale.items.map(i => i.productName).join(", ");
+        const qtys = sale.items.map(i => i.quantity).join("<br>");
+        const prices = sale.items.map(i => i.price).join("<br>");
+        const saleDate = new Date(sale.createdAt).toLocaleDateString();
+
+        totalSpent += sale.totalAmount;
+
+        row.innerHTML = `
+          <td>${saleDate}</td>
+          <td>${itemNames}</td>
+          <td>${qtys}</td>
+          <td>${prices}</td>
+          <td>${sale.totalAmount}</td>
+          <td>${sale.status}</td>
+        `;
+        salesTableBody.appendChild(row);
+      });
+
+      salesTable.style.display = filtered.length ? "table" : "none";
+      summaryDiv.style.display = filtered.length ? "block" : "none";
+      summaryDiv.textContent = `Total Spent by ${customerName}: ₹${totalSpent}`;
+    }
+
+    customerDropdown.addEventListener("change", function () {
+      const selected = customerDropdown.value;
+      if (selected) {
+        loadSalesForCustomer(selected);
+      } else {
+        salesTable.style.display = "none";
+        summaryDiv.style.display = "none";
+      }
+    });
+
+    loadCustomers();
+  </script>
+
+</body>
+</html>

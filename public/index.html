@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ERP Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 100px;
+    }
+    h1 {
+      font-size: 2.5rem;
+      color: #333;
+    }
+    .buttons {
+      margin-top: 40px;
+      display: flex;
+      gap: 30px;
+    }
+    button {
+      font-size: 1.2rem;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Welcome to ERP System</h1>
+  <div class="buttons">
+    <button onclick="location.href='sales.html'">Sales Module</button>
+    <button onclick="location.href='inventory.html'">Inventory Module</button>
+    <button onclick="location.href='crm.html'">CRM Module</button>
+    <button onclick="location.href='customer_dashboard.html'">Customer Dashboard</button>
+    <button onclick="location.href='reports.html'">Reports</button>
+  </div>
+
+</body>
+</html>
