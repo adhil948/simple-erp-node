@@ -3,14 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>Sales Module</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    input, select { margin: 5px; padding: 5px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="container">
 
   <h1>Sales Module</h1>
 
@@ -46,6 +42,7 @@
     <thead>
       <tr>
         <th>Customer</th>
+        <th>Date</th>
         <th>Product</th>
         <th>Qty</th>
         <th>Price</th>
@@ -140,6 +137,7 @@
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${sale.customerName}</td>
+          <td>${new Date(sale.createdAt).toLocaleString()}</td>
           <td>${itemsHtml}</td>
           <td>${sale.items.map(i=>i.quantity).join('<br>')}</td>
           <td>${sale.items.map(i=>i.price).join('<br>')}</td>

@@ -3,24 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <title>Customer Dashboard</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
-    h1 { margin-bottom: 10px; }
-    select { padding: 6px; margin-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
-    th, td { padding: 8px; border: 1px solid #ccc; }
-    th { background: #f0f0f0; }
-    .summary { margin-top: 20px; font-weight: bold; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <h1>Customer Sales Dashboard</h1>
 
-  <label for="customerSelect">Select Customer:</label>
-  <select id="customerSelect">
-    <option value="">-- Select Customer --</option>
-  </select>
+  <div class="container">
+    <input type="text" id="customerSearch" placeholder="Search customers..." />
+    <label for="customerSelect">Select Customer:</label>
+    <select id="customerSelect">
+      <option value="">-- Select Customer --</option>
+    </select>
+  </div>
 
   <table id="salesTable" style="display:none;">
     <thead>
@@ -43,10 +38,17 @@
     const salesTable = document.getElementById("salesTable");
     const salesTableBody = salesTable.querySelector("tbody");
     const summaryDiv = document.getElementById("summary");
+    const customerSearch = document.getElementById("customerSearch");
+    let allCustomers = [];
 
     async function loadCustomers() {
       const res = await fetch("/api/customers");
-      const customers = await res.json();
+      allCustomers = await res.json();
+      renderCustomerOptions(allCustomers);
+    }
+
+    function renderCustomerOptions(customers) {
+      customerDropdown.innerHTML = '<option value="">-- Select Customer --</option>';
       customers.forEach(c => {
         const option = document.createElement("option");
         option.value = c.name;
@@ -54,6 +56,12 @@
         customerDropdown.appendChild(option);
       });
     }
+
+    customerSearch.addEventListener('input', function() {
+      const q = this.value.trim().toLowerCase();
+      const filtered = allCustomers.filter(c => c.name.toLowerCase().includes(q));
+      renderCustomerOptions(filtered);
+    });
 
     async function loadSalesForCustomer(customerName) {
       const res = await fetch("/api/sales");

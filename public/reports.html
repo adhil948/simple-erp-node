@@ -3,30 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <title>Reports Dashboard</title>
-  <style>
-    body { font-family: Arial; padding: 20px; background: #f0f0f0; }
-    h1 { margin-bottom: 20px; }
-    .card { background: white; padding: 15px; margin: 10px 0; border-left: 5px solid #007bff; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-    ul { padding-left: 20px; }
-  </style>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body>
 
-  <h1>Reports Dashboard</h1>
-
-  <div class="grid">
-    <div class="card" id="totalSales">Total Sales: ₹...</div>
-    <div class="card" id="totalCustomers">Total Customers: ...</div>
-    <div class="card" id="totalProducts">Total Products: ...</div>
-    <div class="card" id="inventoryValue">Inventory Value: ₹...</div>
+  <div class="container">
+    <h1>Reports Dashboard</h1>
+    <div class="grid">
+      <div class="card" id="totalSales">Total Sales: ₹...</div>
+      <div class="card" id="totalCustomers">Total Customers: ...</div>
+      <div class="card" id="totalProducts">Total Products: ...</div>
+      <div class="card" id="inventoryValue">Inventory Value: ₹...</div>
+    </div>
   </div>
 
   <div class="card">
     <h3>Top Selling Products</h3>
     <ul id="topProducts"></ul>
   </div>
-
+  
   <script>
     async function loadReport() {
       const res = await fetch("/api/reports/summary");
@@ -47,7 +44,54 @@
     }
 
     loadReport();
+
+    async function loadSalesChart() {
+  const res = await fetch("/api/reports/sales-daily");
+  const data = await res.json();
+
+  const labels = data.map(d => d.date);
+  const totals = data.map(d => d.total);
+
+  const ctx = document.getElementById("salesChart").getContext("2d");
+
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "Total Sales (₹)",
+        data: totals,
+        borderColor: "#007bff",
+        fill: false,
+        tension: 0.1,
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: {
+          title: { display: true, text: "Date" }
+        },
+        y: {
+          title: { display: true, text: "Sales (₹)" },
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
+loadSalesChart();
+
   </script>
+
+<div class="card">
+  <h3>📅 Daily Sales</h3>
+  <canvas id="salesChart" height="100"></canvas>
+</div>
+
 
 </body>
 </html>

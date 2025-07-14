@@ -34,6 +34,8 @@ router.get("/summary", async (req, res) => {
       { $project: { productName: "$_id", totalQty: 1, _id: 0 } }
     ]);
 
+    
+
     res.json({
       totalSales,
       totalCustomers,
@@ -46,5 +48,31 @@ router.get("/summary", async (req, res) => {
     res.status(500).json({ error: "Failed to generate report" });
   }
 });
+
+
+router.get("/sales-daily", async (req, res) => {
+  try {
+    const sales = await Sale.aggregate([
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" }
+          },
+          totalSales: { $sum: "$totalAmount" }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    res.json(sales.map(s => ({
+      date: s._id,
+      total: s.totalSales
+    })));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to load chart data" });
+  }
+});
+
 
 module.exports = router;
