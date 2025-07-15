@@ -6,6 +6,7 @@ const productRoutes = require('./routes/products');
 const customerRoutes = require('./routes/customers');
 const reportsRoutes = require('./routes/reports');
 const expenseRoutes = require("./routes/expenses");
+const path = require("path");
 
 const app = express();
 
@@ -26,8 +27,6 @@ app.use('/api/products', productRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/reports', reportsRoutes); 
 app.use('/api/expenses', expenseRoutes);
-
-
 
 
 const port = 3000;
