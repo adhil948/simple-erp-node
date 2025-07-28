@@ -128,7 +128,7 @@ export default function Inventory() {
   return (
     <Box sx={{ mt: 4 }}>
       <div className="container">
-        <Paper sx={{ p: 3, mb: 4 }} elevation={3}>
+        <Paper sx={{ p: 3, mb: 4, bgcolor: 'background.paper', color: 'text.primary' }} elevation={3}>
           <Typography variant="h4" gutterBottom>Inventory Module</Typography>
           <Button variant="contained" onClick={() => setShowForm(!showForm)} sx={{ mb: 2 }}>
             {showForm ? 'Hide Form' : 'Add New Product'}
@@ -145,7 +145,7 @@ export default function Inventory() {
           )}
         </Paper>
 
-        <Paper sx={{ p: 3 }} elevation={3}>
+        <Paper sx={{ p: 3, bgcolor: 'background.paper', color: 'text.primary' }} elevation={3}>
           <Typography variant="h6" gutterBottom>All Products</Typography>
 
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 2 }}>

@@ -4,6 +4,10 @@ import {
   TableBody, Snackbar, TableContainer, InputLabel, FormControl, Collapse, IconButton, CircularProgress
 } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
+import {
+       
+  useTheme
+} from '@mui/material';
 
 export default function CRM() {
   const [entries, setEntries] = useState([]);
@@ -14,6 +18,9 @@ export default function CRM() {
   const [submitting, setSubmitting] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [showForm, setShowForm] = useState(false);
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === 'dark';
+
 
   const loadCRM = async () => {
     setLoading(true);
@@ -151,37 +158,47 @@ export default function CRM() {
             <Typography>Loading CRM data...</Typography>
           </Box>
         ) : (
-          <TableContainer>
-            <Table id="crmTable">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Phone</TableCell>
-                  <TableCell>Company</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Notes</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {entries.map(item => (
-                  <TableRow key={item._id}>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.email || '-'}</TableCell>
-                    <TableCell>{item.phone || '-'}</TableCell>
-                    <TableCell>{item.company || '-'}</TableCell>
-                    <TableCell>{item.status}</TableCell>
-                    <TableCell>{item.notes || '-'}</TableCell>
-                    <TableCell>
-                      <Button size="small" variant="outlined" onClick={() => handleEdit(item._id)} sx={{ mr: 1 }}>Edit</Button>
-                      <Button size="small" variant="outlined" color="error" onClick={() => handleDelete(item._id)}>Delete</Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+<TableContainer component={Paper} sx={{ mt: 3 }}>
+      <Table id="crmTable">
+        <TableHead>
+          <TableRow
+            sx={{
+              bgcolor: isDarkMode ? '#1e1e1e' : '#f0f0f0',
+            }}
+          >
+            {['Name', 'Email', 'Phone', 'Company', 'Status', 'Notes', 'Actions'].map((heading) => (
+              <TableCell
+                key={heading}
+                sx={{
+                  color: isDarkMode ? '#ffffff' : '#000000',
+                  fontWeight: 'bold',
+                }}
+              >
+                {heading}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+
+        <TableBody>
+          {entries.map(item => (
+            <TableRow key={item._id}>
+              <TableCell>{item.name}</TableCell>
+              <TableCell>{item.email || '-'}</TableCell>
+              <TableCell>{item.phone || '-'}</TableCell>
+              <TableCell>{item.company || '-'}</TableCell>
+              <TableCell>{item.status}</TableCell>
+              <TableCell>{item.notes || '-'}</TableCell>
+              <TableCell>
+                <Button size="small" variant="outlined" onClick={() => handleEdit(item._id)} sx={{ mr: 1 }}>Edit</Button>
+                <Button size="small" variant="outlined" color="error" onClick={() => handleDelete(item._id)}>Delete</Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+
         )}
       </Paper>
 

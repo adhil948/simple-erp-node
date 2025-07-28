@@ -1,14 +1,51 @@
+/* Theme variables */
+:root {
+  --color-bg: #f4f6fa;
+  --color-text: #222;
+  --color-card-bg: #fff;
+  --color-card-shadow: #0001;
+  --color-heading: #222;
+  --color-table-header: #f7faff;
+  --color-table-row-even: #f8fafd;
+  --color-table-row-hover: #f2f7ff;
+  --color-btn-bg: #007bff;
+  --color-btn-bg-hover: #0056b3;
+  --color-btn-text: #fff;
+  --color-input-bg: #fff;
+  --color-input-border: #cfd8dc;
+  --color-input-border-focus: #007bff;
+  --color-placeholder: #aaa;
+}
+
+[data-theme='dark'] {
+  --color-bg: #181a1b;
+  --color-text: #f4f6fa;
+  --color-card-bg: #23272f;
+  --color-card-shadow: #0006;
+  --color-heading: #f4f6fa;
+  --color-table-header: #23272f;
+  --color-table-row-even: #20232a;
+  --color-table-row-hover: #23272f;
+  --color-btn-bg: #1976d2;
+  --color-btn-bg-hover: #1565c0;
+  --color-btn-text: #fff;
+  --color-input-bg: #23272f;
+  --color-input-border: #374151;
+  --color-input-border-focus: #1976d2;
+  --color-placeholder: #aaa;
+}
+
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
-  background: #f4f6fa;
-  color: #222;
+  background: var(--color-bg);
+  color: var(--color-text);
   margin: 0;
   padding: 0;
 }
 
 h1, h2, h3 {
   font-weight: 600;
-  color: #222;
+  color: var(--color-heading);
   margin-top: 0;
 }
 
@@ -19,9 +56,9 @@ h1, h2, h3 {
 }
 
 .card, .section {
-  background: #fff;
+  background: var(--color-card-bg);
   border-radius: 12px;
-  box-shadow: 0 2px 12px #0001;
+  box-shadow: 0 2px 12px var(--color-card-shadow);
   padding: 24px;
   margin-bottom: 24px;
 }
@@ -29,29 +66,29 @@ h1, h2, h3 {
 table {
   width: 100%;
   border-collapse: collapse;
-  background: #fff;
+  background: var(--color-card-bg);
   margin-bottom: 24px;
 }
 th, td {
   padding: 12px 10px;
-  border-bottom: 1px solid #e3e3e3;
+  border-bottom: 1px solid var(--color-input-border);
   text-align: left;
 }
 th {
-  background: #f7faff;
+  background: var(--color-table-header);
   font-weight: 500;
 }
 tr:nth-child(even) {
-  background: #f8fafd;
+  background: var(--color-table-row-even);
 }
 table tr:hover {
-  background: #f2f7ff;
+  background: var(--color-table-row-hover);
   transition: background 0.2s;
 }
 
 button {
-  background: #007bff;
-  color: #fff;
+  background: var(--color-btn-bg);
+  color: var(--color-btn-text);
   border: none;
   border-radius: 8px;
   padding: 10px 22px;
@@ -59,34 +96,35 @@ button {
   cursor: pointer;
   margin: 2px;
   transition: background 0.2s, transform 0.1s;
-  box-shadow: 0 1px 4px #0001;
+  box-shadow: 0 1px 4px var(--color-card-shadow);
 }
 button:hover {
-  background: #0056b3;
+  background: var(--color-btn-bg-hover);
 }
 button:active {
   transform: scale(0.97);
-  background: #0056b3;
+  background: var(--color-btn-bg-hover);
 }
 
 input, select, textarea {
   padding: 8px 10px;
-  border: 1px solid #cfd8dc;
+  border: 1px solid var(--color-input-border);
   border-radius: 6px;
   font-size: 1rem;
   margin: 5px 0;
   outline: none;
   transition: border 0.2s;
-  background: #fff;
+  background: var(--color-input-bg);
+  color: var(--color-text);
 }
 input:focus, select:focus, textarea:focus {
-  border: 1.5px solid #007bff;
+  border: 1.5px solid var(--color-input-border-focus);
 }
 
-::-webkit-input-placeholder { color: #aaa; }
-::-moz-placeholder { color: #aaa; }
-:-ms-input-placeholder { color: #aaa; }
-::placeholder { color: #aaa; }
+::-webkit-input-placeholder { color: var(--color-placeholder); }
+::-moz-placeholder { color: var(--color-placeholder); }
+:-ms-input-placeholder { color: var(--color-placeholder); }
+::placeholder { color: var(--color-placeholder); }
 
 @media (max-width: 700px) {
   .container, .card, .section {

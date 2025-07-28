@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import CRM from './CRM';
 import CustomerDashboard from './CustomerDashboard';
 import Expenses from './Expenses';
@@ -25,6 +26,15 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import SearchIcon from '@mui/icons-material/Search';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import InputBase from '@mui/material/InputBase';
+import Avatar from '@mui/material/Avatar';
+import Badge from '@mui/material/Badge';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+
+
 
 const theme = createTheme({
   palette: {
@@ -107,30 +117,123 @@ function NavigationDrawer({ open, handleDrawerToggle }) {
   );
 }
 
-function AppContent() {
+function AppContent({ mode, setMode }) {
   const [open, setOpen] = useState(false);
   const isMobile = useMediaQuery('(max-width:768px)');
 
   const handleDrawerToggle = () => setOpen(!open);
 
+
+const navigate = useNavigate();
+const [searchQuery, setSearchQuery] = useState('');
+
+const toggleTheme = () => {
+  setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+};
+
+
+
+const handleSearch = () => {
+  const query = searchQuery.trim().toLowerCase();
+
+  const routeMap = {
+    home: '/',
+    crm: '/crm',
+    'customer dashboard': '/customer-dashboard',
+    expenses: '/expenses',
+    inventory: '/inventory',
+    products: '/inventory',
+    reports: '/reports',
+    sales: '/sales',
+  };
+
+  const matchedPath = Object.entries(routeMap).find(([keyword]) =>
+    query.includes(keyword)
+  );
+
+  if (matchedPath) {
+    navigate(matchedPath[1]);
+  } else {
+    alert('No matching page found!');
+  }
+
+  setSearchQuery('');
+};
+
+
+
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', background: theme.palette.background.default }}>
-      <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1, boxShadow: 3 }}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="toggle drawer"
-            onClick={handleDrawerToggle}
-            edge="start"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            ERP System
-          </Typography>
-        </Toolbar>
-      </AppBar>
+    <Box
+  sx={{
+    display: 'flex',
+    minHeight: '100vh',
+    bgcolor: 'background.default',
+    color: 'text.primary',
+  }}
+>
+
+<AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1, boxShadow: 3, bgcolor: 'primary.main' }}>
+  <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+    {/* Left Section: Menu Button + Logo + Title */}
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <IconButton
+        color="inherit"
+        aria-label="toggle drawer"
+        onClick={handleDrawerToggle}
+        edge="start"
+        sx={{ mr: 2 }}
+      >
+        <MenuIcon />
+      </IconButton>
+
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <img src="/logo192.png" alt="ERP Logo" style={{ width: 32, marginRight: 10 }} />
+        <Typography variant="h6" noWrap sx={{ fontWeight: 600 }}>
+          ERP System
+        </Typography>
+      </Box>
+    </Box>
+
+    {/* Right Section: Search + Notifications + Avatar */}
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      {/* Search Box */}
+<Box
+  sx={{
+    display: { xs: 'none', sm: 'flex' },
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: 1,
+    px: 1.5,
+    py: 0.5,
+    mr: 2,
+  }}
+>
+  <SearchIcon sx={{ fontSize: 20, color: 'white', cursor: 'pointer' }} onClick={handleSearch} />
+  <InputBase
+    placeholder="Search…"
+    sx={{ ml: 1, color: 'white' }}
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+  />
+</Box>
+
+
+
+      {/* Notification Icon */}
+<IconButton color="inherit" onClick={toggleTheme} sx={{ mr: 1 }}>
+  {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+</IconButton>
+
+
+      {/* Avatar */}
+      <IconButton color="inherit">
+        <Avatar alt="User" src="/static/images/avatar/1.jpg" />
+      </IconButton>
+    </Box>
+  </Toolbar>
+</AppBar>
+
 
       <NavigationDrawer open={open && !isMobile} handleDrawerToggle={handleDrawerToggle} />
 
@@ -147,7 +250,18 @@ function AppContent() {
       >
         <Toolbar />
 
-        <Container maxWidth="lg" sx={{ flexGrow: 1 }}>
+        <Container
+  maxWidth="lg"
+  sx={{
+    flexGrow: 1,
+    bgcolor: 'background.default',
+    color: 'text.primary',
+    borderRadius: 2,
+    boxShadow: 1,
+    p: 3,
+  }}
+>
+
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/crm" element={<CRM />} />
@@ -159,23 +273,64 @@ function AppContent() {
           </Routes>
         </Container>
 
-        <Box component="footer" sx={{ mt: 4, textAlign: 'center', py: 2, borderTop: '1px solid #ccc' }}>
-          <Typography variant="body2" color="textSecondary">
-            © 2025 ADHIL . All rights reserved.
-          </Typography>
-        </Box>
+        <Box
+  component="footer"
+  sx={{
+    mt: 4,
+    textAlign: 'center',
+    py: 2,
+    borderTop: '1px solid',
+    borderColor: 'divider',
+    bgcolor: 'background.paper',
+    color: 'text.secondary',
+  }}
+>
+  <Typography variant="body2">
+    © 2025 ADHIL . All rights reserved.
+  </Typography>
+</Box>
+
       </Box>
     </Box>
   );
 }
 
+const getTheme = (mode) =>
+  createTheme({
+    palette: {
+      mode,
+      primary: { main: '#1976d2' },
+      secondary: { main: '#007bff' },
+      background: { default: mode === 'light' ? '#f4f6fa' : '#121212' },
+    },
+    typography: {
+      fontFamily: "'Segoe UI', Arial, sans-serif",
+      h6: { fontWeight: 600 },
+      body1: { fontSize: '1rem' },
+    },
+  });
+
 export default function App() {
+  const [mode, setMode] = useState(() => {
+    // Try to load from localStorage, fallback to 'light'
+    return localStorage.getItem('themeMode') || 'light';
+  });
+  const theme = getTheme(mode);
+
+  // Set data-theme attribute on <html> for CSS variables
+  React.useEffect(() => {
+    document.documentElement.setAttribute('data-theme', mode);
+    localStorage.setItem('themeMode', mode);
+  }, [mode]);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <AppContent />
+        <AppContent mode={mode} setMode={setMode} />
       </Router>
     </ThemeProvider>
   );
 }
+
+

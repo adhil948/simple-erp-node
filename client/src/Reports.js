@@ -24,7 +24,7 @@ export default function Reports() {
         const data = await res.json();
         setProducts(data || []);
       } catch (e) {
-        setSnackbar({ open: true, message: 'Failed to load products', severity: 'error' });
+        // silently ignore error
       }
     }
     loadProducts();
@@ -45,7 +45,7 @@ export default function Reports() {
     loadReport();
   }, []);
 
-  // Load Chart.js if not present
+  // Load Chart.js if not present (AND plugin: OPTIONAL)
   useEffect(() => {
     async function loadChartLibs() {
       if (!window.Chart) {
@@ -56,6 +56,7 @@ export default function Reports() {
           document.body.appendChild(script);
         });
       }
+      // OPTIONAL: Load chartjs-plugin-zoom for zooming
       if (!window.Chart?.registry?.getPlugin('zoom')) {
         const zoomScript = document.createElement('script');
         zoomScript.src = 'https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom';
@@ -65,7 +66,7 @@ export default function Reports() {
     loadChartLibs();
   }, []);
 
-  // Build query string for filters
+  // Construct query string for /api/reports/sales-daily
   const buildSalesQuery = () => {
     const params = [];
     if (startDate) params.push(`start=${startDate}`);
@@ -74,30 +75,21 @@ export default function Reports() {
     return params.length > 0 ? "?" + params.join("&") : "";
   };
 
-  // Load and draw sales chart
+  // Load and Draw Sales Chart
   const loadSalesChart = async () => {
     if (!chartRef.current || !window.Chart) return;
-
     try {
       const query = buildSalesQuery();
       const res = await fetch('/api/reports/sales-daily' + query);
-      const data = await res.json().catch(() => []);
-
-      if (!Array.isArray(data) || data.length === 0) {
-        setSnackbar({ open: true, message: 'No sales data for selected filters.', severity: 'info' });
-        if (chartInstance.current) {
-          chartInstance.current.destroy();
-          chartInstance.current = null;
-        }
-        return;
-      }
-
+      const data = await res.json();
+      // API should return array [{date, total, productId, productName}] (productId optional)
       const labels = data.map(d => d.date);
-      let datasets = [];
+      const totals = data.map(d => d.total);
 
+      // Multi-product overlay/compare: group by productName
+      let datasets = [];
       if (selectedProduct || products.length === 0 || data[0]?.productName === undefined) {
         // Single dataset
-        const totals = data.map(d => d.total);
         datasets = [{
           label: 'Total Sales (₹)',
           data: totals,
@@ -108,16 +100,12 @@ export default function Reports() {
           pointHoverRadius: 6,
         }];
       } else {
-        // Multiple datasets (per product)
+        // Multiple products: one line per product
         const grouped = {};
-        let productIndex = 0;
         data.forEach(({ date, total, productName }) => {
-          if (!grouped[productName]) {
-            grouped[productName] = { label: productName, data: {}, borderColor: getColor(productIndex++) };
-          }
+          if (!grouped[productName]) grouped[productName] = { label: productName, data: {}, borderColor: randomColor(productName) };
           grouped[productName].data[date] = total;
         });
-
         datasets = Object.values(grouped).map(g => ({
           label: g.label,
           data: labels.map(l => g.data[l] ?? 0),
@@ -127,14 +115,13 @@ export default function Reports() {
         }));
       }
 
-      if (chartInstance.current) {
-        chartInstance.current.destroy();
-        chartInstance.current = null;
-      }
-
+      if (chartInstance.current) chartInstance.current.destroy();
       chartInstance.current = new window.Chart(chartRef.current, {
         type: 'line',
-        data: { labels, datasets },
+        data: {
+          labels,
+          datasets,
+        },
         options: {
           responsive: true,
           plugins: {
@@ -146,7 +133,7 @@ export default function Reports() {
             },
             zoom: {
               pan: { enabled: true, mode: 'x' },
-              zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' },
+              zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' }, // OPTIONAL (plugin needed)
             }
           },
           scales: {
@@ -155,23 +142,27 @@ export default function Reports() {
           }
         }
       });
-
     } catch (e) {
       setSnackbar({ open: true, message: 'Failed to load sales chart', severity: 'error' });
     }
   };
 
-  // Generate color from fixed palette
-  const colors = ['#ff6384', '#36a2eb', '#cc65fe', '#ffce56', '#4bc0c0'];
-  const getColor = index => colors[index % colors.length];
+  // Helper for assigning different colors to product lines
+  function randomColor(key) {
+    // Simple hash to color
+    const num = Array.from(key || 'xyz').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360;
+    return `hsl(${num},60%,55%)`;
+  }
 
+  // Always reload chart when filters change
   useEffect(() => {
     loadSalesChart();
-    return () => {
-      if (chartInstance.current) chartInstance.current.destroy();
-    };
+    // Clean on unmount
+    return () => { if (chartInstance.current) chartInstance.current.destroy(); };
+    // eslint-disable-next-line
   }, [startDate, endDate, selectedProduct, products.length]);
 
+  // Convenience: fill in last 30 days on mount
   useEffect(() => {
     if (!startDate && !endDate) {
       const today = new Date(), prior = new Date();
@@ -179,15 +170,17 @@ export default function Reports() {
       setEndDate(today.toISOString().slice(0, 10));
       setStartDate(prior.toISOString().slice(0, 10));
     }
-  }, []);
+  }, []); // once
 
+  // On Apply button (re)load chart
   const handleFilterChange = e => {
     e?.preventDefault();
     loadSalesChart();
   };
 
+  // Optional: reset chart zoom (if plugin loaded)
   const handleResetZoom = () => {
-    if (chartInstance.current?.resetZoom) chartInstance.current.resetZoom();
+    if (chartInstance.current && chartInstance.current.resetZoom) chartInstance.current.resetZoom();
   };
 
   const handleCardClick = (path) => { window.location.href = path; };
@@ -286,7 +279,7 @@ export default function Reports() {
               >
                 <MenuItem value="">All Products</MenuItem>
                 {products.map((p) =>
-                  <MenuItem value={p._id} key={p._id}>{p.name}</MenuItem>
+                  <MenuItem value={p.id} key={p.id}>{p.name}</MenuItem>
                 )}
               </Select>
             </FormControl>
@@ -296,7 +289,6 @@ export default function Reports() {
             variant="outlined"
             size="small"
             onClick={handleResetZoom}
-            disabled={!chartInstance.current?.resetZoom}
             sx={{ ml: 1 }}
           >
             Reset Zoom

@@ -6,9 +6,40 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
   
+/* Theme variables */
+:root {
+  --color-bg: #f5f7fa;
+  --color-text: #333;
+  --color-container-bg: #fff;
+  --color-heading: #2a2a2a;
+  --color-card-bg: #ffffff;
+  --color-card-shadow: rgba(0,0,0,0.06);
+  --color-card-shadow-hover: rgba(0,0,0,0.1);
+  --color-btn-bg: #0056b3;
+  --color-btn-bg-hover: #003f8a;
+  --color-btn-text: #fff;
+  --color-stats-label: #888;
+  --color-stats-value: #222;
+}
+
+[data-theme='dark'] {
+  --color-bg: #181a1b;
+  --color-text: #f4f6fa;
+  --color-container-bg: #23272f;
+  --color-heading: #f4f6fa;
+  --color-card-bg: #23272f;
+  --color-card-shadow: rgba(0,0,0,0.3);
+  --color-card-shadow-hover: rgba(0,0,0,0.5);
+  --color-btn-bg: #1976d2;
+  --color-btn-bg-hover: #1565c0;
+  --color-btn-text: #fff;
+  --color-stats-label: #aaa;
+  --color-stats-value: #fff;
+}
+
 body {
-  background: #f5f7fa;
-  color: #333;
+  background: var(--color-bg);
+  color: var(--color-text);
   line-height: 1.6;
   margin: 0;
   padding: 0;
@@ -18,16 +49,16 @@ body {
   .container {
     max-width: 1200px;
     width: 100%;
-    background: #fff;
+    background: var(--color-container-bg);
     padding: 40px 40px;
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 20px var(--color-card-shadow);
     text-align: center;
   }
   
   h1 {
     margin-bottom: 30px;
-    color: #2a2a2a;
+    color: var(--color-heading);
     font-size: 2.2rem;
   }
   
@@ -43,29 +74,29 @@ body {
   
   #dashboard-stats > div {
     flex: 1 1 150px;
-    background: #ffffff;
+    background: var(--color-card-bg);
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    box-shadow: 0 2px 10px var(--color-card-shadow);
     text-align: center;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
   
   #dashboard-stats > div:hover {
     transform: translateY(-4px);
-    box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 14px var(--color-card-shadow-hover);
   }
   
   #dashboard-stats div div:first-child {
     font-size: 1rem;
-    color: #888;
+    color: var(--color-stats-label);
     margin-bottom: 8px;
   }
   
   #dashboard-stats div div:last-child {
     font-size: 1.6rem;
     font-weight: 600;
-    color: #222;
+    color: var(--color-stats-value);
   }
   
   /* Buttons */
@@ -79,19 +110,19 @@ body {
   }
   
   button {
-    background-color: #0056b3;
-    color: white;
+    background-color: var(--color-btn-bg);
+    color: var(--color-btn-text);
     padding: 12px 20px;
     border: none;
     border-radius: 8px;
     font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 6px var(--color-card-shadow);
   }
   
   button:hover {
-    background-color: #003f8a;
+    background-color: var(--color-btn-bg-hover);
     transform: translateY(-2px);
   }
   
