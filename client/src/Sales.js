@@ -64,7 +64,13 @@ export default function Sales() {
       setSnackbar({ open: true, message: 'Please select product, quantity, and price.', severity: 'error' });
       return;
     }
-    setItems([...items, { ...item, quantity: parseInt(item.quantity), price: parseFloat(item.price) }]);
+    const selectedProduct = products.find(p => p.name === item.productName);
+    setItems([...items, {
+      ...item,
+      productId: selectedProduct ? selectedProduct._id : '',
+      quantity: parseInt(item.quantity),
+      price: parseFloat(item.price)
+    }]);
     setItem({ productName: '', quantity: '', price: '' });
   };
 
@@ -122,9 +128,16 @@ export default function Sales() {
       setSnackbar({ open: true, message: 'All fields are required.', severity: 'error' });
       return;
     }
+    // Find the productId for the newProduct
+    const selectedProduct = products.find(p => p.name === newProduct);
     const updated = {
       customerName: newCustomer,
-      items: [{ productName: newProduct, quantity: parseInt(newQty), price: parseFloat(newPrice) }],
+      items: [{
+        productId: selectedProduct ? selectedProduct._id : '',
+        productName: newProduct,
+        quantity: parseInt(newQty),
+        price: parseFloat(newPrice)
+      }],
       totalAmount: parseInt(newQty) * parseFloat(newPrice),
       status: newStatus
     };

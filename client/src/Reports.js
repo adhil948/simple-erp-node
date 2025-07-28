@@ -16,21 +16,17 @@ export default function Reports() {
   const chartRef = useRef();
   const chartInstance = useRef();
 
-  // Load Products for dropdown
   useEffect(() => {
     async function loadProducts() {
       try {
         const res = await fetch('/api/products');
         const data = await res.json();
         setProducts(data || []);
-      } catch (e) {
-        // silently ignore error
-      }
+      } catch (e) {}
     }
     loadProducts();
   }, []);
 
-  // Load Dashboard Summary + Top Products
   useEffect(() => {
     async function loadReport() {
       try {
@@ -45,7 +41,6 @@ export default function Reports() {
     loadReport();
   }, []);
 
-  // Load Chart.js if not present (AND plugin: OPTIONAL)
   useEffect(() => {
     async function loadChartLibs() {
       if (!window.Chart) {
@@ -56,7 +51,6 @@ export default function Reports() {
           document.body.appendChild(script);
         });
       }
-      // OPTIONAL: Load chartjs-plugin-zoom for zooming
       if (!window.Chart?.registry?.getPlugin('zoom')) {
         const zoomScript = document.createElement('script');
         zoomScript.src = 'https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom';
@@ -66,7 +60,6 @@ export default function Reports() {
     loadChartLibs();
   }, []);
 
-  // Construct query string for /api/reports/sales-daily
   const buildSalesQuery = () => {
     const params = [];
     if (startDate) params.push(`start=${startDate}`);
@@ -75,21 +68,17 @@ export default function Reports() {
     return params.length > 0 ? "?" + params.join("&") : "";
   };
 
-  // Load and Draw Sales Chart
   const loadSalesChart = async () => {
     if (!chartRef.current || !window.Chart) return;
     try {
       const query = buildSalesQuery();
       const res = await fetch('/api/reports/sales-daily' + query);
       const data = await res.json();
-      // API should return array [{date, total, productId, productName}] (productId optional)
       const labels = data.map(d => d.date);
       const totals = data.map(d => d.total);
 
-      // Multi-product overlay/compare: group by productName
       let datasets = [];
       if (selectedProduct || products.length === 0 || data[0]?.productName === undefined) {
-        // Single dataset
         datasets = [{
           label: 'Total Sales (₹)',
           data: totals,
@@ -100,7 +89,6 @@ export default function Reports() {
           pointHoverRadius: 6,
         }];
       } else {
-        // Multiple products: one line per product
         const grouped = {};
         data.forEach(({ date, total, productName }) => {
           if (!grouped[productName]) grouped[productName] = { label: productName, data: {}, borderColor: randomColor(productName) };
@@ -118,10 +106,7 @@ export default function Reports() {
       if (chartInstance.current) chartInstance.current.destroy();
       chartInstance.current = new window.Chart(chartRef.current, {
         type: 'line',
-        data: {
-          labels,
-          datasets,
-        },
+        data: { labels, datasets },
         options: {
           responsive: true,
           plugins: {
@@ -133,7 +118,7 @@ export default function Reports() {
             },
             zoom: {
               pan: { enabled: true, mode: 'x' },
-              zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' }, // OPTIONAL (plugin needed)
+              zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' },
             }
           },
           scales: {
@@ -147,22 +132,17 @@ export default function Reports() {
     }
   };
 
-  // Helper for assigning different colors to product lines
   function randomColor(key) {
-    // Simple hash to color
     const num = Array.from(key || 'xyz').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360;
     return `hsl(${num},60%,55%)`;
   }
 
-  // Always reload chart when filters change
   useEffect(() => {
     loadSalesChart();
-    // Clean on unmount
     return () => { if (chartInstance.current) chartInstance.current.destroy(); };
     // eslint-disable-next-line
   }, [startDate, endDate, selectedProduct, products.length]);
 
-  // Convenience: fill in last 30 days on mount
   useEffect(() => {
     if (!startDate && !endDate) {
       const today = new Date(), prior = new Date();
@@ -170,17 +150,20 @@ export default function Reports() {
       setEndDate(today.toISOString().slice(0, 10));
       setStartDate(prior.toISOString().slice(0, 10));
     }
-  }, []); // once
+  }, []);
 
-  // On Apply button (re)load chart
   const handleFilterChange = e => {
     e?.preventDefault();
     loadSalesChart();
   };
 
-  // Optional: reset chart zoom (if plugin loaded)
   const handleResetZoom = () => {
     if (chartInstance.current && chartInstance.current.resetZoom) chartInstance.current.resetZoom();
+  };
+
+  const handleShowAllDates = () => {
+    setStartDate('2000-01-01');
+    setEndDate('2100-01-01');
   };
 
   const handleCardClick = (path) => { window.location.href = path; };
@@ -269,29 +252,38 @@ export default function Reports() {
             onChange={e => setEndDate(e.target.value)}
             InputLabelProps={{ shrink: true }}
           />
-          {products.length > 0 &&
-            <FormControl size="small" sx={{ minWidth: 160 }}>
-              <InputLabel>Product</InputLabel>
+          {products.length > 0 && (
+            <FormControl size="small" sx={{ minWidth: 220 }}>
+              <InputLabel id="product-filter-label">Product</InputLabel>
               <Select
+                labelId="product-filter-label"
                 label="Product"
                 value={selectedProduct}
                 onChange={e => setSelectedProduct(e.target.value)}
+                renderValue={(selected) => {
+                  if (!selected) return 'All Products';
+                  const product = products.find(p => p._id === selected);
+                  return product ? product.name : selected;
+                }}
+                MenuProps={{ PaperProps: { style: { maxHeight: 300 } } }}
               >
-                <MenuItem value="">All Products</MenuItem>
-                {products.map((p) =>
-                  <MenuItem value={p.id} key={p.id}>{p.name}</MenuItem>
-                )}
+                <MenuItem value="">
+                  <em>All Products</em>
+                </MenuItem>
+                <CustomSearchableItems
+                  items={products}
+                  selected={selectedProduct}
+                  setSelected={setSelectedProduct}
+                />
               </Select>
             </FormControl>
-          }
+          )}
           <Button type="submit" variant="contained" size="small">Apply</Button>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={handleResetZoom}
-            sx={{ ml: 1 }}
-          >
+          <Button variant="outlined" size="small" onClick={handleResetZoom} sx={{ ml: 1 }}>
             Reset Zoom
+          </Button>
+          <Button variant="outlined" size="small" onClick={handleShowAllDates} sx={{ ml: 1 }}>
+            Show All Dates
           </Button>
         </Box>
         <Box sx={{ overflowX: 'auto' }}>
@@ -306,5 +298,42 @@ export default function Reports() {
         message={snackbar.message}
       />
     </Box>
+  );
+}
+
+// 🔍 Custom component for searchable dropdown
+function CustomSearchableItems({ items, selected, setSelected }) {
+  const [filterText, setFilterText] = useState('');
+
+  const filteredItems = items.filter(item =>
+    item.name.toLowerCase().includes(filterText.toLowerCase())
+  );
+
+  return (
+    <>
+      <Box sx={{ px: 2, pt: 1 }}>
+        <TextField
+          autoFocus
+          size="small"
+          fullWidth
+          placeholder="Search Product..."
+          value={filterText}
+          onChange={e => setFilterText(e.target.value)}
+        />
+      </Box>
+      {filteredItems.map(item => (
+        <MenuItem
+          key={item._id}
+          value={item._id}
+          selected={item._id === selected}
+          onClick={() => setSelected(item._id)}
+        >
+          {item.name}
+        </MenuItem>
+      ))}
+      {filteredItems.length === 0 && (
+        <MenuItem disabled>No matches found</MenuItem>
+      )}
+    </>
   );
 }
