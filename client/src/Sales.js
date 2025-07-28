@@ -29,6 +29,7 @@ export default function Sales() {
     const res = await fetch('/api/products');
     const data = await res.json();
     setProducts(data);
+    console.log(`products`,data);
     const map = {};
     data.forEach(p => { map[p.name] = p.price; });
     setProductMap(map);
@@ -45,11 +46,15 @@ export default function Sales() {
   };
 
   const handleItemChange = e => {
-    let value = e.target.value;
-    if (e.target.id === 'productName') {
+    console.log(`handleitemchange`)
+    const {name, value} = e.target;
+    console.log(`value`,value)
+    if (name === 'productName') {
       setItem({ ...item, productName: value, price: productMap[value] || '' });
+      console.log(`true`);
     } else {
       setItem({ ...item, [e.target.id]: value });
+      console.log(`false`);
     }
   };
 
@@ -137,11 +142,11 @@ export default function Sales() {
   };
 
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box sx={{ mt: 4 }} justifyContent="center">
       <Paper sx={{ p: 3, mb: 4 }} elevation={3}>
-        <Typography variant="h4" gutterBottom>Sales Module</Typography>
-        <Typography variant="h6" gutterBottom>Add New Sale</Typography>
-        <Box component="form" id="saleForm" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 600 }}>
+        <Typography variant="h4" gutterBottom align="center">Sales Module</Typography>
+        <Typography variant="h6" gutterBottom align="center">Add New Sale</Typography>
+        <Box component="form" id="saleForm" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 6000 }} justifyContent="center">
           <FormControl>
             <InputLabel id="customerName-label">Customer</InputLabel>
             <Select
@@ -159,8 +164,8 @@ export default function Sales() {
               ))}
             </Select>
           </FormControl>
-          <Box id="itemInputs" sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-            <FormControl sx={{ minWidth: 180 }}>
+          <Box id="itemInputs" sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+            <FormControl sx={{ minWidth: 350 }}>
               <InputLabel id="productName-label">Product</InputLabel>
               <Select
                 labelId="productName-label"
@@ -176,9 +181,9 @@ export default function Sales() {
                 ))}
               </Select>
             </FormControl>
-            <TextField label="Quantity" id="quantity" value={item.quantity} onChange={handleItemChange} type="number" sx={{ width: 100 }} />
-            <TextField label="Price" id="price" value={item.price} InputProps={{ readOnly: true }} sx={{ width: 120 }} />
-            <Button type="button" variant="outlined" onClick={addItem}>Add Item</Button>
+            <TextField label="Quantity" id="quantity" value={item.quantity} onChange={handleItemChange} type="number" sx={{ width: 200 }} />
+            <TextField label="Price" id="price" value={item.price} InputProps={{ readOnly: true }} sx={{ width: 300 }} />
+            <Button sx={{width:200}} type="button" variant="outlined" onClick={addItem}>Add Item</Button>
           </Box>
           {items.length > 0 && (
             <TableContainer sx={{ mt: 2 }}>

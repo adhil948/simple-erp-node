@@ -7,6 +7,34 @@ export default function Expenses() {
   const [expenses, setExpenses] = useState([]);
   const [form, setForm] = useState({ name: '', category: '', amount: '', date: '' });
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [filter,setFilter] = useState({ category: '', date: '' ,month: ''});
+  const [filteredExpenses, setFilteredExpenses] = useState([]);
+
+  useEffect(() => {
+    let result = [...expenses];
+    if (filter.category){
+      result = result.filter(exp => exp.category === filter.category);
+    }
+
+  if (filter.month) {
+    result = result.filter(exp => {
+      const expDate = new Date(exp.date);
+      const filterMonth = new Date(filter.month + '-01'); // e.g., "2025-07"
+      return (
+        expDate.getFullYear() === filterMonth.getFullYear() &&
+        expDate.getMonth() === filterMonth.getMonth()
+      );
+    });
+  } else if (filter.date) {
+    result = result.filter(exp => exp.date.slice(0, 10) === filter.date);
+  }
+    setFilteredExpenses(result);
+  }, [expenses, filter]);
+
+
+  const handleFilterChange =(e)=> {
+    setFilter({...filter, [e.target.name]: e.target.value });
+  }
 
   const loadExpenses = async () => {
     const res = await fetch('/api/expenses');
@@ -53,11 +81,25 @@ export default function Expenses() {
     }
   };
 
+  const handleEdit = id => {
+    const exp = expenses.find(e => e._id === id);
+    if (exp) {
+      setForm({
+        name: exp.name,
+        category: exp.category,
+        amount: exp.amount.toString(),
+        date: exp.date.slice(0, 10)
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+
   return (
     <Box sx={{ mt: 4 }}>
       <Paper sx={{ p: 3, mb: 4 }} elevation={3}>
-        <Typography variant="h4" gutterBottom>Expense Tracker</Typography>
-        <Box component="form" id="expenseForm" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 500 }}>
+        <Typography variant="h4" gutterBottom align="center">Expense Tracker</Typography>
+        <Box component="form" id="expenseForm" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 1200 }}>
           <TextField label="Expense Name" id="name" value={form.name} onChange={handleChange} required />
           <FormControl>
             <InputLabel id="category-label">Category</InputLabel>
@@ -75,6 +117,64 @@ export default function Expenses() {
           <Button type="submit" variant="contained">Add Expense</Button>
         </Box>
       </Paper>
+<Paper sx={{ p: 2, mb: 3 }} elevation={20}>
+  <Typography variant="h6" gutterBottom>Filter Expenses</Typography>
+  <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'nowrap',
+        gap: 2,
+        alignItems: 'center',
+        width: '100%',
+        '& > *': { flex: 1 }
+      }}
+    >    <FormControl sx={{ minWidth: 300 }}>
+      <InputLabel id="filter-category-label">Category</InputLabel>
+      <Select
+        labelId="filter-category-label"
+        name="category"
+        value={filter.category}
+        onChange={handleFilterChange}
+        label="Category"
+      >
+        <MenuItem value="">All Categories</MenuItem>
+        <MenuItem value="Utility">Utility</MenuItem>
+        <MenuItem value="Salary">Salary</MenuItem>
+        <MenuItem value="Purchase">Purchase</MenuItem>
+        <MenuItem value="Maintenance">Maintenance</MenuItem>
+        <MenuItem value="Other">Other</MenuItem>
+      </Select>
+    </FormControl>
+
+    <TextField
+      name="date"
+      label="Specific Date"
+      type="date"
+      value={filter.date}
+      onChange={handleFilterChange}
+      InputLabelProps={{ shrink: true }}
+    />
+
+    <TextField
+      name="month"
+      label="Month"
+      type="month"
+      value={filter.month}
+      onChange={handleFilterChange}
+      InputLabelProps={{ shrink: true }}
+    />
+
+    <Button
+      variant="outlined"
+      color="secondary"
+      onClick={() => setFilter({ category: '', date: '', month: '' })}
+    >
+      Clear Filters
+    </Button>
+  </Box>
+</Paper>
+
+
       <Paper sx={{ p: 3 }} elevation={3}>
         <TableContainer>
           <Table>
@@ -88,7 +188,7 @@ export default function Expenses() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {expenses.map(exp => (
+              {filteredExpenses.map(exp => (
                 <TableRow key={exp._id}>
                   <TableCell>{exp.name}</TableCell>
                   <TableCell>{exp.category}</TableCell>
@@ -96,6 +196,7 @@ export default function Expenses() {
                   <TableCell>{new Date(exp.date).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <Button size="small" variant="outlined" color="error" onClick={() => handleDelete(exp._id)}>Delete</Button>
+                    <Button size="small" variant="outlined" color="blue" onClick={() => handleEdit(exp._id)}>Edit</Button>
                   </TableCell>
                 </TableRow>
               ))}

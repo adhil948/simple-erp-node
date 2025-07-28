@@ -25,6 +25,9 @@ export default function CustomerDashboard() {
   const handleSearch = e => {
     const q = e.target.value.trim().toLowerCase();
     setFilteredCustomers(allCustomers.filter(c => c.name.toLowerCase().includes(q)));
+    setSelectedCustomer(''); // Reset selection on search
+    setSales([]);            // Optionally clear sales table
+    setSummary('');          // Optionally clear summary
   };
 
   const handleSelect = e => {
@@ -48,11 +51,12 @@ export default function CustomerDashboard() {
   };
 
   return (
+    <div className="container">
     <Box sx={{ mt: 4 }}>
       <Paper sx={{ p: 3, mb: 4 }} elevation={3}>
         <Typography variant="h4" gutterBottom>Customer Sales Dashboard</Typography>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 500 }}>
-          <TextField label="Search customers..." onInput={handleSearch} />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 1200 }}>
+          <TextField label="Search customers..." onChange={handleSearch} />
           <FormControl>
             <InputLabel id="customerSelect-label">Select Customer</InputLabel>
             <Select
@@ -114,5 +118,6 @@ export default function CustomerDashboard() {
         message={snackbar.message}
       />
     </Box>
+    </div>
   );
 } 
