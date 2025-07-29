@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box, Paper, Typography, TextField, Select, MenuItem, Button, Table, TableHead, TableRow, TableCell, TableBody, Snackbar, TableContainer, InputLabel, FormControl
 } from '@mui/material';
@@ -11,6 +12,7 @@ export default function Sales() {
   const [item, setItem] = useState({ productName: '', quantity: '', price: '' });
   const [items, setItems] = useState([]);
   const [sales, setSales] = useState([]);
+  const navigate = useNavigate();
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
@@ -29,7 +31,6 @@ export default function Sales() {
     const res = await fetch('/api/products');
     const data = await res.json();
     setProducts(data);
-    console.log(`products`,data);
     const map = {};
     data.forEach(p => { map[p.name] = p.price; });
     setProductMap(map);
@@ -45,16 +46,49 @@ export default function Sales() {
     setForm({ ...form, [e.target.id || e.target.name]: e.target.value });
   };
 
+  // Prefill invoice creation when "Create Invoice" is clicked
+  const handleCreateInvoice = (sale) => {
+    // Find customer & products by name for proper ID mapping (for prefill to /invoices)
+    let customer = customers.find(c => c.name === sale.customerName);
+    if (!customer) {
+      // fallback: see if sale has a customer object (if your API returns so)
+      customer = sale.customer || {};
+    }
+    // Build items array to match expected {productId, quantity, price}
+    const saleItems =
+      (sale.items || []).map(it => {
+        let product;
+        // Handle both DB objects and just productName strings
+        if (it.productId) {
+          product = products.find(p => p._id === it.productId);
+        } else if (it.product && it.product._id) {
+          product = { ...it.product };
+        } else {
+          product = products.find(p => p.name === (it.productName || (it.product && it.product.name)));
+        }
+        return {
+          productId: product ? product._id : it.productId || '',
+          quantity: it.quantity,
+          price: it.price
+        };
+      });
+
+    navigate('/invoices', {
+      state: {
+        sale: {
+          customerId: customer._id,
+          items: saleItems
+        }
+      }
+    });
+  };
+
   const handleItemChange = e => {
-    console.log(`handleitemchange`)
-    const {name, value} = e.target;
-    console.log(`value`,value)
+    const { name, value } = e.target;
     if (name === 'productName') {
       setItem({ ...item, productName: value, price: productMap[value] || '' });
-      console.log(`true`);
     } else {
       setItem({ ...item, [e.target.id]: value });
-      console.log(`false`);
     }
   };
 
@@ -120,15 +154,14 @@ export default function Sales() {
     const saleres = await fetch(`/api/sales/${id}`);
     const sale = await saleres.json();
     const newCustomer = prompt('Edit customer name:', sale.customerName);
-    const newProduct = prompt('Edit product name:', sale.items[0].productName);
-    const newQty = prompt('Edit quantity:', sale.items[0].quantity);
-    const newPrice = prompt('Edit price:', sale.items[0].price);
+    const newProduct = prompt('Edit product name:', sale.items[0]?.productName || '');
+    const newQty = prompt('Edit quantity:', sale.items[0]?.quantity || '');
+    const newPrice = prompt('Edit price:', sale.items[0]?.price || '');
     const newStatus = prompt('Edit status (Paid, Unpaid, Pending):', sale.status);
     if (!newCustomer || !newProduct || !newQty || !newPrice || !newStatus) {
       setSnackbar({ open: true, message: 'All fields are required.', severity: 'error' });
       return;
     }
-    // Find the productId for the newProduct
     const selectedProduct = products.find(p => p.name === newProduct);
     const updated = {
       customerName: newCustomer,
@@ -196,7 +229,7 @@ export default function Sales() {
             </FormControl>
             <TextField label="Quantity" id="quantity" value={item.quantity} onChange={handleItemChange} type="number" sx={{ width: 200 }} />
             <TextField label="Price" id="price" value={item.price} InputProps={{ readOnly: true }} sx={{ width: 300 }} />
-            <Button sx={{width:200}} type="button" variant="outlined" onClick={addItem}>Add Item</Button>
+            <Button sx={{ width: 200 }} type="button" variant="outlined" onClick={addItem}>Add Item</Button>
           </Box>
           {items.length > 0 && (
             <TableContainer sx={{ mt: 2 }}>
@@ -262,15 +295,41 @@ export default function Sales() {
               {sales.map(sale => (
                 <TableRow key={sale._id}>
                   <TableCell>{sale.customerName}</TableCell>
-                  <TableCell>{new Date(sale.createdAt).toLocaleString()}</TableCell>
-                  <TableCell>{sale.items.map(item => <div key={item.productName}>{item.productName} (x{item.quantity} @ {item.price})</div>)}</TableCell>
+                  <TableCell>{sale.createdAt ? new Date(sale.createdAt).toLocaleString() : '-'}</TableCell>
+                  <TableCell>
+                    {sale.items.map(item =>
+                      <div key={item.productName}>
+                        {item.productName} (x{item.quantity} @ {item.price})
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell>{sale.items.map(i => i.quantity).join(', ')}</TableCell>
                   <TableCell>{sale.items.map(i => i.price).join(', ')}</TableCell>
                   <TableCell>{sale.totalAmount}</TableCell>
                   <TableCell>{sale.status}</TableCell>
                   <TableCell>
                     <Button size="small" variant="outlined" color="primary" onClick={() => handleEdit(sale._id)} sx={{ mr: 1 }}>Edit</Button>
-                    <Button size="small" variant="outlined" color="error" onClick={() => handleDelete(sale._id)}>Delete</Button>
+                    <Button size="small" variant="outlined" color="error" onClick={() => handleDelete(sale._id)} sx={{ mr: 1 }}>Delete</Button>
+                  {sale.invoiceId ? (
+  <Button
+    size="small"
+    variant="contained"
+    color="success"
+    onClick={() => navigate(`/invoices/${sale.invoiceId}`)}
+  >
+    View Invoice
+  </Button>
+) : (
+  <Button
+    size="small"
+    variant="contained"
+    color="secondary"
+    onClick={() => handleCreateInvoice(sale)}
+  >
+    Create Invoice
+  </Button>
+)}
+
                   </TableCell>
                 </TableRow>
               ))}
@@ -286,4 +345,4 @@ export default function Sales() {
       />
     </Box>
   );
-} 
+}

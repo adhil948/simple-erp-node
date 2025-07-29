@@ -4,6 +4,7 @@ const router = express.Router();
 const Sale = require("../models/Sale");
 const Product = require("../models/Product");
 const Customer = require("../models/Customer");
+const Payment = require('../models/Payment');
 
 
 // GET /api/reports/summary
@@ -123,6 +124,16 @@ router.get("/sales-daily", async (req, res) => {
   }
 });
 
+
+// List all payments
+router.get('/payments', async (req, res) => {
+  try {
+    const payments = await Payment.find().populate('invoice');
+    res.json(payments);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 
 module.exports = router;

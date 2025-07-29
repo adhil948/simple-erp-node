@@ -8,6 +8,7 @@ import Inventory from './Inventory';
 import Reports from './Reports';
 import Sales from './Sales';
 import Home from './Home';
+import Invoices from './Invoices';
 import './style.css';
 import './style1index.css';
 
@@ -60,6 +61,7 @@ const navItems = [
   { text: 'Inventory', icon: <InventoryIcon />, path: '/inventory' },
   { text: 'Reports', icon: <BarChartIcon />, path: '/reports' },
   { text: 'Sales', icon: <MonetizationOnIcon />, path: '/sales' },
+  { text: 'Invoices', icon: <ReceiptIcon />, path: '/invoices' },
 ];
 
 function NavigationDrawer({ open, handleDrawerToggle }) {
@@ -69,6 +71,7 @@ function NavigationDrawer({ open, handleDrawerToggle }) {
     <Drawer
       variant="temporary"
       open={open}
+      onClose={handleDrawerToggle}
       sx={{
         width: drawerWidth,
         flexShrink: 0,
@@ -145,6 +148,7 @@ const handleSearch = () => {
     products: '/inventory',
     reports: '/reports',
     sales: '/sales',
+    invoices: '/invoices',
   };
 
   const matchedPath = Object.entries(routeMap).find(([keyword]) =>
@@ -175,26 +179,26 @@ const handleSearch = () => {
 <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1, boxShadow: 3, bgcolor: 'primary.main' }}>
   <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
     {/* Left Section: Menu Button + Logo + Title */}
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <IconButton
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <IconButton
         color="inherit"
         aria-label="toggle drawer"
         onClick={handleDrawerToggle}
         edge="start"
         sx={{ mr: 2 }}
-      >
+        >
         <MenuIcon />
-      </IconButton>
+        </IconButton>
 
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <img src="/logo192.png" alt="ERP Logo" style={{ width: 32, marginRight: 10 }} />
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <img src="/logo1.png" alt="ERP Logo" style={{ width: 32, marginRight: 10 }} />
         <Typography variant="h6" noWrap sx={{ fontWeight: 600 }}>
           ERP System
         </Typography>
+        </Box>
       </Box>
-    </Box>
 
-    {/* Right Section: Search + Notifications + Avatar */}
+      {/* Right Section: Search + Notifications + Avatar */}
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       {/* Search Box */}
 <Box
@@ -270,6 +274,7 @@ const handleSearch = () => {
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/sales" element={<Sales />} />
+            <Route path="/invoices" element={<Invoices />} />
           </Routes>
         </Container>
 
