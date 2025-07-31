@@ -10,7 +10,6 @@ import Sales from './Sales';
 import Home from './Home';
 import Invoices from './Invoices';
 import './style.css';
-import './style1index.css';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import {
@@ -35,22 +34,6 @@ import Badge from '@mui/material/Badge';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 
-
-
-const theme = createTheme({
-  palette: {
-    mode: 'light',
-    primary: { main: '#1976d2' },
-    secondary: { main: '#007bff' },
-    background: { default: '#f4f6fa' },
-  },
-  typography: {
-    fontFamily: "'Segoe UI', Arial, sans-serif",
-    h6: { fontWeight: 600 },
-    body1: { fontSize: '1rem' },
-  },
-});
-
 const drawerWidth = 220;
 
 const navItems = [
@@ -64,9 +47,59 @@ const navItems = [
   { text: 'Invoices', icon: <ReceiptIcon />, path: '/invoices' },
 ];
 
+// --- MUI custom neutral, minimal theme --- //
+const getTheme = (mode) =>
+  createTheme({
+    palette: {
+      mode,
+      primary: { main: '#242426' }, // dark charcoal
+      secondary: { main: '#bdbdbd' }, // soft grey
+      background: {
+        default: mode === 'light' ? '#f7f7fa' : '#19191b',
+        paper: mode === 'light' ? '#fff' : '#222224'
+      },
+      text: {
+        primary: mode === 'light' ? '#242426' : '#f5f6fa',
+        secondary: mode === 'light' ? '#6c6d6f' : '#bdbdbd'
+      }
+    },
+    typography: {
+      fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
+      h6: { fontWeight: 600, letterSpacing: 0.2 },
+      body1: { fontSize: '1rem', lineHeight: 1.7 },
+      button: { fontWeight: 500, textTransform: 'none', letterSpacing: 0.2 }
+    },
+    components: {
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            borderRadius: 14,
+            boxShadow: '0 2px 16px rgba(36,36,38,0.04)'
+          }
+        }
+      },
+      MuiInputBase: {
+        styleOverrides: {
+          input: {
+            fontSize: '1rem'
+          }
+        }
+      },
+      MuiListItem: {
+        styleOverrides: {
+          root: {
+            '&.Mui-selected': {
+              backgroundColor: mode === 'light' ? '#ededed' : '#232325',
+              color: '#131313'
+            }
+          }
+        }
+      }
+    }
+  });
+
 function NavigationDrawer({ open, handleDrawerToggle }) {
   const location = useLocation();
-
   return (
     <Drawer
       variant="temporary"
@@ -78,15 +111,15 @@ function NavigationDrawer({ open, handleDrawerToggle }) {
         [`& .MuiDrawer-paper`]: {
           width: drawerWidth,
           boxSizing: 'border-box',
-          background: '#fff',
-          transition: 'width 0.3s',
-          boxShadow: 3,
+          background: 'var(--color-container-bg, #fff)',
+          borderRight: '1px solid #e7e7ef',
+          boxShadow: 6,
         },
       }}
     >
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', px: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <img src="/logo192.png" alt="ERP Logo" style={{ width: 40, marginRight: 10 }} />
+          <img src="/logo192.png" alt="ERP Logo" style={{ width: 36, marginRight: 10 }} />
           <Typography variant="h6" color="primary">ERP</Typography>
         </Box>
         <IconButton onClick={handleDrawerToggle}>
@@ -95,26 +128,50 @@ function NavigationDrawer({ open, handleDrawerToggle }) {
       </Toolbar>
 
       <List sx={{ mt: 2 }}>
-        {navItems.map(item => (
-          <ListItem
-            button
-            key={item.text}
-            component={Link}
-            to={item.path}
-            selected={location.pathname === item.path}
-            sx={{
-              borderRadius: 2,
-              mb: 1,
-              mx: 1,
-              backgroundColor: location.pathname === item.path ? 'primary.light' : 'transparent',
-              '&:hover': { backgroundColor: 'primary.light' },
-              transition: '0.2s ease',
-            }}
-          >
-            <ListItemIcon sx={{ color: 'primary.main' }}>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.text} />
-          </ListItem>
-        ))}
+        {navItems.map(item => {
+          const selected = location.pathname === item.path;
+          return (
+            <ListItem
+              button
+              key={item.text}
+              component={Link}
+              to={item.path}
+              selected={selected}
+              sx={{
+                borderRadius: 2,
+                mb: 1,
+                mx: 1,
+                backgroundColor: selected ? 'var(--color-nav-active)' : 'transparent',
+                color: selected ? 'var(--color-primary)' : 'inherit',
+                '&:hover': {
+                  backgroundColor: 'var(--color-nav-hover)',
+                  '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
+                    color: 'var(--color-primary)',
+                  },
+                },
+                transition: '0.2s ease',
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  color: selected ? 'var(--color-primary)' : '#757575',
+                  minWidth: 32,
+                  transition: 'color 0.2s',
+                }}
+              >
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText
+                primary={item.text}
+                sx={{
+                  color: selected ? 'var(--color-primary)' : 'inherit',
+                  transition: 'color 0.2s',
+                  fontWeight: selected ? 600 : 400,
+                }}
+              />
+            </ListItem>
+          );
+        })}
       </List>
     </Drawer>
   );
@@ -126,118 +183,109 @@ function AppContent({ mode, setMode }) {
 
   const handleDrawerToggle = () => setOpen(!open);
 
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
 
-const navigate = useNavigate();
-const [searchQuery, setSearchQuery] = useState('');
-
-const toggleTheme = () => {
-  setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
-};
-
-
-
-const handleSearch = () => {
-  const query = searchQuery.trim().toLowerCase();
-
-  const routeMap = {
-    home: '/',
-    crm: '/crm',
-    'customer dashboard': '/customer-dashboard',
-    expenses: '/expenses',
-    inventory: '/inventory',
-    products: '/inventory',
-    reports: '/reports',
-    sales: '/sales',
-    invoices: '/invoices',
+  const toggleTheme = () => {
+    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
   };
 
-  const matchedPath = Object.entries(routeMap).find(([keyword]) =>
-    query.includes(keyword)
-  );
+  const handleSearch = () => {
+    const query = searchQuery.trim().toLowerCase();
+    const routeMap = {
+      home: '/',
+      crm: '/crm',
+      'customer dashboard': '/customer-dashboard',
+      expenses: '/expenses',
+      inventory: '/inventory',
+      products: '/inventory',
+      reports: '/reports',
+      sales: '/sales',
+      invoices: '/invoices',
+    };
 
-  if (matchedPath) {
-    navigate(matchedPath[1]);
-  } else {
-    alert('No matching page found!');
-  }
+    const matchedPath = Object.entries(routeMap).find(([keyword]) =>
+      query.includes(keyword)
+    );
 
-  setSearchQuery('');
-};
-
-
+    if (matchedPath) {
+      navigate(matchedPath[1]);
+    } else {
+      alert('No matching page found!');
+    }
+    setSearchQuery('');
+  };
 
   return (
     <Box
-  sx={{
-    display: 'flex',
-    minHeight: '100vh',
-    bgcolor: 'background.default',
-    color: 'text.primary',
-  }}
->
+      sx={{
+        display: 'flex',
+        minHeight: '100vh',
+        bgcolor: 'background.default',
+      }}
+    >
 
-<AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1, boxShadow: 3, bgcolor: 'primary.main' }}>
-  <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-    {/* Left Section: Menu Button + Logo + Title */}
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <IconButton
-        color="inherit"
-        aria-label="toggle drawer"
-        onClick={handleDrawerToggle}
-        edge="start"
-        sx={{ mr: 2 }}
-        >
-        <MenuIcon />
-        </IconButton>
+      <AppBar elevation={0}
+        position="fixed"
+        color="transparent"
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          background: 'var(--color-navbar-bg, #fff)',
+          boxShadow: '0 1px 0 0 #ececec'
+        }}
+      >
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', minHeight: 60 }}>
 
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <img src="/logo1.png" alt="ERP Logo" style={{ width: 32, marginRight: 10 }} />
-        <Typography variant="h6" noWrap sx={{ fontWeight: 600 }}>
-          ERP System
-        </Typography>
-        </Box>
-      </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton edge="start" onClick={handleDrawerToggle} sx={{
+              mr: 2, color: '#19191B'
+            }} >
+              <MenuIcon style={{ fontSize: 26 }} />
+            </IconButton>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <img src="/logo1.png" alt="ERP Logo" style={{ width: 30, marginRight: 10, filter: 'grayscale(100%)' }} />
+              <Typography variant="h6" noWrap sx={{
+                fontWeight: 600, color: 'var(--color-heading)', fontSize: 20
+              }}>
+                ERP System
+              </Typography>
+            </Box>
+          </Box>
 
-      {/* Right Section: Search + Notifications + Avatar */}
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      {/* Search Box */}
-<Box
-  sx={{
-    display: { xs: 'none', sm: 'flex' },
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 1,
-    px: 1.5,
-    py: 0.5,
-    mr: 2,
-  }}
->
-  <SearchIcon sx={{ fontSize: 20, color: 'white', cursor: 'pointer' }} onClick={handleSearch} />
-  <InputBase
-    placeholder="Search…"
-    sx={{ ml: 1, color: 'white' }}
-    value={searchQuery}
-    onChange={(e) => setSearchQuery(e.target.value)}
-    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-  />
-</Box>
-
-
-
-      {/* Notification Icon */}
-<IconButton color="inherit" onClick={toggleTheme} sx={{ mr: 1 }}>
-  {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
-</IconButton>
-
-
-      {/* Avatar */}
-      <IconButton color="inherit">
-        <Avatar alt="User" src="/static/images/avatar/1.jpg" />
-      </IconButton>
-    </Box>
-  </Toolbar>
-</AppBar>
-
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {/* Search Box */}
+            <Box
+              sx={{
+                display: { xs: 'none', sm: 'flex' },
+                alignItems: 'center',
+                backgroundColor: 'var(--color-search-bg)',
+                borderRadius: 1.5,
+                px: 1.5,
+                py: 0.5,
+                mr: 2,
+                border: '1px solid #ededed'
+              }}
+            >
+              <SearchIcon sx={{ fontSize: 19, color: '#949494', cursor: 'pointer' }} onClick={handleSearch} />
+              <InputBase
+                placeholder="Search…"
+                sx={{ ml: 1, color: 'inherit', fontSize: 16, width: 120, fontWeight: 500 }}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                inputProps={{ style: { background: 'none' } }}
+              />
+            </Box>
+            {/* Theme toggle */}
+            <IconButton onClick={toggleTheme} sx={{ mr: 1, color: '#242426' }}>
+              {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+            </IconButton>
+            <IconButton color="inherit" sx={{ ml: 0.5 }}>
+              <Avatar alt="User" src="/static/images/avatar/1.jpg" />
+            </IconButton>
+          </Box>
+        </Toolbar>
+      </AppBar>
 
       <NavigationDrawer open={open && !isMobile} handleDrawerToggle={handleDrawerToggle} />
 
@@ -248,24 +296,23 @@ const handleSearch = () => {
           p: { xs: 2, md: 4 },
           ml: open && !isMobile ? `${drawerWidth}px` : 0,
           transition: 'margin-left 0.3s',
-          display: 'flex',
-          flexDirection: 'column',
+          background: 'var(--color-bg, #f7f7fa)',
         }}
       >
         <Toolbar />
 
         <Container
-  maxWidth="lg"
-  sx={{
-    flexGrow: 1,
-    bgcolor: 'background.default',
-    color: 'text.primary',
-    borderRadius: 2,
-    boxShadow: 1,
-    p: 3,
-  }}
->
-
+          maxWidth="lg"
+          sx={{
+            flexGrow: 1,
+            bgcolor: 'background.paper',
+            color: 'text.primary',
+            borderRadius: 3,
+            boxShadow: '0 2px 20px var(--color-card-shadow, rgba(28,28,29,0.04))',
+            p: { xs: 2, md: 3, lg: 4 },
+            minHeight: 'calc(100vh - 112px)'
+          }}
+        >
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/crm" element={<CRM />} />
@@ -279,50 +326,34 @@ const handleSearch = () => {
         </Container>
 
         <Box
-  component="footer"
-  sx={{
-    mt: 4,
-    textAlign: 'center',
-    py: 2,
-    borderTop: '1px solid',
-    borderColor: 'divider',
-    bgcolor: 'background.paper',
-    color: 'text.secondary',
-  }}
->
-  <Typography variant="body2">
-    © 2025 ADHIL . All rights reserved.
-  </Typography>
-</Box>
-
+          component="footer"
+          sx={{
+            mt: 4,
+            textAlign: 'center',
+            py: 2,
+            borderTop: '1px solid',
+            borderColor: 'divider',
+            bgcolor: 'background.paper',
+            color: 'text.secondary',
+            fontWeight: 400,
+            fontSize: 15
+          }}
+        >
+          <Typography variant="body2">
+            © 2025 ADHIL . All rights reserved.
+          </Typography>
+        </Box>
       </Box>
     </Box>
   );
 }
 
-const getTheme = (mode) =>
-  createTheme({
-    palette: {
-      mode,
-      primary: { main: '#1976d2' },
-      secondary: { main: '#007bff' },
-      background: { default: mode === 'light' ? '#f4f6fa' : '#121212' },
-    },
-    typography: {
-      fontFamily: "'Segoe UI', Arial, sans-serif",
-      h6: { fontWeight: 600 },
-      body1: { fontSize: '1rem' },
-    },
-  });
-
 export default function App() {
   const [mode, setMode] = useState(() => {
-    // Try to load from localStorage, fallback to 'light'
     return localStorage.getItem('themeMode') || 'light';
   });
   const theme = getTheme(mode);
 
-  // Set data-theme attribute on <html> for CSS variables
   React.useEffect(() => {
     document.documentElement.setAttribute('data-theme', mode);
     localStorage.setItem('themeMode', mode);
@@ -337,5 +368,3 @@ export default function App() {
     </ThemeProvider>
   );
 }
-
-

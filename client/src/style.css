@@ -1,140 +1,231 @@
-/* Theme variables */
 :root {
-  --color-bg: #f4f6fa;
-  --color-text: #222;
+  /* Neutral, minimal palette */
+  --color-bg: #f7f7fa;
+  --color-navbar-bg: #d0e3e4;
+  --color-container-bg: #ffffff;
   --color-card-bg: #fff;
-  --color-card-shadow: #0001;
-  --color-heading: #222;
-  --color-table-header: #f7faff;
-  --color-table-row-even: #f8fafd;
-  --color-table-row-hover: #f2f7ff;
-  --color-btn-bg: #007bff;
-  --color-btn-bg-hover: #0056b3;
+  --color-card-shadow: rgba(28,28,29,0.04);
+  --color-card-shadow-hover: rgba(28,28,29,0.07);
+
+  --color-nav-active: #d0e3e4;
+  --color-nav-hover: #f3f3f3;
+  --color-search-bg: #f0f0f3;
+  --color-heading: #19191b;
+  --color-text: #242426;
+
+  --color-btn-bg: #25262d;
+  --color-btn-bg-hover: #131313;
   --color-btn-text: #fff;
-  --color-input-bg: #fff;
-  --color-input-border: #cfd8dc;
-  --color-input-border-focus: #007bff;
-  --color-placeholder: #aaa;
+
+  --color-stats-label: #9b9b9f;
+  --color-stats-value: #2c2c35;
+  
+  --color-primary: #242426;
+  --color-secondary: #bdbdbd;
 }
 
+/* Dark theme overrides */
 [data-theme='dark'] {
-  --color-bg: #181a1b;
-  --color-text: #f4f6fa;
-  --color-card-bg: #23272f;
-  --color-card-shadow: #0006;
+  --color-bg: #19191b;
+  --color-navbar-bg: #222224;
+  --color-container-bg: #232325;
+  --color-card-bg: #232325;
+  --color-card-shadow: rgba(18,18,20,0.22);
+  --color-card-shadow-hover: rgba(18,18,20,0.41);
+
+  --color-nav-active: #232325;
+  --color-nav-hover: #232325;
+  --color-search-bg: #242426;
   --color-heading: #f4f6fa;
-  --color-table-header: #23272f;
-  --color-table-row-even: #20232a;
-  --color-table-row-hover: #23272f;
-  --color-btn-bg: #1976d2;
-  --color-btn-bg-hover: #1565c0;
-  --color-btn-text: #fff;
-  --color-input-bg: #23272f;
-  --color-input-border: #374151;
-  --color-input-border-focus: #1976d2;
-  --color-placeholder: #aaa;
+  --color-text: #f4f6fa;
+  
+  --color-btn-bg: #f4f6fa;
+  --color-btn-bg-hover: #fff;
+  --color-btn-text: #232325;
+
+  --color-stats-label: #aaa;
+  --color-stats-value: #fff;
+
+  --color-primary: #f4f6fa;
+  --color-secondary: #606065;
 }
 
-body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: var(--color-bg);
-  color: var(--color-text);
+/* Reset & base font */
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
 
-h1, h2, h3 {
-  font-weight: 600;
-  color: var(--color-heading);
-  margin-top: 0;
+/* Body & backgrounds */
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.7;
 }
 
+/* Main App container, centralize */
 .container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 24px 16px;
+  max-width: 1300px;
+  background: var(--color-container-bg);
+  padding: 38px 32px;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px var(--color-card-shadow);
+  margin: 24px auto;
+  text-align: center;
 }
 
-.card, .section {
+/* Headings */
+h1, h2, h3, h4 {
+  color: var(--color-heading);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+h1 {
+  margin-bottom: 28px;
+  font-size: 2.1rem;
+}
+
+/* Dashboard stats cards */
+#dashboard-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin: 0 auto 28px;
+  justify-content: space-between;
+  opacity: 1;
+  transition: opacity 0.7s ease;
+}
+
+#dashboard-stats > div {
+  flex: 1 1 140px;
   background: var(--color-card-bg);
-  border-radius: 12px;
+  padding: 18px;
+  border-radius: 14px;
   box-shadow: 0 2px 12px var(--color-card-shadow);
-  padding: 24px;
-  margin-bottom: 24px;
+  text-align: center;
+  transition: transform 0.16s, box-shadow 0.16s;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--color-card-bg);
-  margin-bottom: 24px;
-}
-th, td {
-  padding: 12px 10px;
-  border-bottom: 1px solid var(--color-input-border);
-  text-align: left;
-}
-th {
-  background: var(--color-table-header);
-  font-weight: 500;
-}
-tr:nth-child(even) {
-  background: var(--color-table-row-even);
-}
-table tr:hover {
-  background: var(--color-table-row-hover);
-  transition: background 0.2s;
+#dashboard-stats > div:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 6px 20px var(--color-card-shadow-hover);
 }
 
+#dashboard-stats div div:first-child {
+  font-size: 0.97rem;
+  color: var(--color-stats-label);
+  margin-bottom: 7px;
+  letter-spacing: 0.04em;
+}
+
+#dashboard-stats div div:last-child {
+  font-size: 1.48rem;
+  font-weight: 600;
+  color: var(--color-stats-value);
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 13px;
+  margin-top: 28px;
+  padding: 0 10px;
+}
+
+/* Primary Button look */
 button {
-  background: var(--color-btn-bg);
+  background-color: var(--color-btn-bg);
   color: var(--color-btn-text);
+  padding: 12px 18px;
   border: none;
   border-radius: 8px;
-  padding: 10px 22px;
   font-size: 1rem;
   cursor: pointer;
-  margin: 2px;
-  transition: background 0.2s, transform 0.1s;
-  box-shadow: 0 1px 4px var(--color-card-shadow);
+  transition: background-color 0.16s, transform 0.13s, color 0.16s;
+  box-shadow: 0 1.5px 7px var(--color-card-shadow);
+  font-weight: 500;
+  letter-spacing: 0.1em;
 }
+
 button:hover {
-  background: var(--color-btn-bg-hover);
+  background-color: var(--color-btn-bg-hover, #18191b);
+  color: var(--color-btn-text-hover, #5e43d6);
+  transform: translateY(-1.5px) scale(1.03);
 }
+
 button:active {
-  transform: scale(0.97);
-  background: var(--color-btn-bg-hover);
+  transform: translateY(1px) scale(0.99);
 }
 
-input, select, textarea {
-  padding: 8px 10px;
-  border: 1px solid var(--color-input-border);
-  border-radius: 6px;
-  font-size: 1rem;
-  margin: 5px 0;
-  outline: none;
-  transition: border 0.2s;
-  background: var(--color-input-bg);
-  color: var(--color-text);
-}
-input:focus, select:focus, textarea:focus {
-  border: 1.5px solid var(--color-input-border-focus);
+/* Subtle borders for contrast in neutral UI */
+hr, .divider, [role=separator], .MuiDivider-root {
+  border: none;
+  height: 1px;
+  background: #ededed;
+  margin: 16px 0;
 }
 
-::-webkit-input-placeholder { color: var(--color-placeholder); }
-::-moz-placeholder { color: var(--color-placeholder); }
-:-ms-input-placeholder { color: var(--color-placeholder); }
-::placeholder { color: var(--color-placeholder); }
+/* AppBar styling for simplicity */
+.MuiAppBar-root,
+.app-navbar {
+  background: var(--color-navbar-bg, #fff) !important;
+  box-shadow: 0 1px 0 #ececec !important;
+}
 
-@media (max-width: 700px) {
-  .container, .card, .section {
-    padding: 12px 4px;
+.MuiToolbar-root {
+  min-height: 56px !important;
+}
+
+.MuiDrawer-paper {
+  background: var(--color-container-bg, #fff) !important;
+  border-right: 1px solid #e7e7ef !important;
+}
+
+.MuiList-root .MuiListItem-root {
+  border-radius: 25px !important;
+  margin-bottom: 4px;
+  margin-left: 4px;
+  margin-right: 4px;
+  transition: background 0.18s;
+}
+
+.MuiList-root .MuiListItem-root.Mui-selected,
+.MuiList-root .MuiListItem-root:hover {
+  background: var(--color-nav-active, #eee) !important;
+}
+
+.MuiListItemIcon-root {
+  min-width: 32px !important;
+}
+
+/* Search bar minimal look */
+input[type="search"], .MuiInputBase-input {
+  background: none !important;
+  border: none !important;
+  outline: none !important;
+  font-size: 1rem !important;
+  color: var(--color-primary, #241d1b) !important;
+  box-shadow: none !important;
+}
+
+/* Responsive small screens */
+@media (max-width: 800px) {
+  .container {
+    padding: 18px 5px;
   }
-  th, td {
-    padding: 8px 4px;
+  #dashboard-stats {
+    flex-direction: column;
+    gap: 11px;
   }
-  button {
-    padding: 8px 12px;
-    font-size: 0.95rem;
+  .buttons {
+    grid-template-columns: repeat(1, 1fr);
   }
-} 
+}
+.css-1g3qal3-MuiContainer-root {
+  max-width: 100%; /* Or a specific value like 1600px */
+  
+  
+}
