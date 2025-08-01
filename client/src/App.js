@@ -8,7 +8,7 @@ import Inventory from './Inventory';
 import Reports from './Reports';
 import Sales from './Sales';
 import Home from './Home';
-import Invoices from './Invoices';
+import Invoices from './Invoice/Invoices';
 import './style.css';
 import Dock from './Dock';
 

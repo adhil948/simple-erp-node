@@ -258,7 +258,7 @@ export default function Sales() {
               </Table>
             </TableContainer>
           )}
-          <FormControl>
+          {/* <FormControl>
             <InputLabel id="status-label">Status</InputLabel>
             <Select
               labelId="status-label"
@@ -272,7 +272,7 @@ export default function Sales() {
               <MenuItem value="unpaid">Unpaid</MenuItem>
               <MenuItem value="pending">Pending</MenuItem>
             </Select>
-          </FormControl>
+          </FormControl> */}
           <Button type="submit" variant="contained">Add Sale</Button>
         </Box>
       </Paper>
