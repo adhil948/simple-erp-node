@@ -8,6 +8,7 @@ import {
        
   useTheme
 } from '@mui/material';
+import TextType from './TextType';
 
 export default function CRM() {
   const [entries, setEntries] = useState([]);
@@ -93,10 +94,11 @@ export default function CRM() {
   };
 
   return (
-    <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <h1 ><strong>CRM MODULE</strong></h1>
       <Paper sx={{ p: 3, mb: 3, width: '100%', maxWidth: 1000 }} elevation={3}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h4">👥 CRM Module</Typography>
+          
           <Button
             variant="contained"
             color={showForm ? 'secondary' : 'primary'}

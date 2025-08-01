@@ -424,8 +424,11 @@ export default function Invoices() {
 
   // -------- LIST ALL INVOICES -------------
   return (
+    
+    
     <div style={styles.container}>
-      <h2 style={{ marginBottom: 16, letterSpacing:1, fontWeight:600, color:"#2e3b4e", fontSize:32 }}>Invoices</h2>
+      <box><h1 style={{ marginBottom: 16, letterSpacing:1, fontWeight:600, color:"#2e3b4e", fontSize:32 }}>Invoices</h1></box>
+      <h1 style={{ marginBottom: 16, letterSpacing:1, fontWeight:600, color:"#2e3b4e", fontSize:32 }}>Invoices</h1>
       <div style={{ marginBottom: 20 }}>
         <button className="no-print" onClick={() => { setShowCreate(!showCreate); setEditingInvoice(null); resetForm(); }} style={styles.actionBtn}>
           {showCreate ? 'Cancel' : 'Create Invoice'}

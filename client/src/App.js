@@ -10,6 +10,9 @@ import Sales from './Sales';
 import Home from './Home';
 import Invoices from './Invoices';
 import './style.css';
+import Dock from './Dock';
+import { VscHome, VscOrganization, VscDashboard, VscBook, VscLibrary, VscGraphLine, VscServerProcess, VscFile } from 'react-icons/vsc';
+
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import {
@@ -46,6 +49,9 @@ const navItems = [
   { text: 'Sales', icon: <MonetizationOnIcon />, path: '/sales' },
   { text: 'Invoices', icon: <ReceiptIcon />, path: '/invoices' },
 ];
+
+
+
 
 // --- MUI custom neutral, minimal theme --- //
 const getTheme = (mode) =>
@@ -189,6 +195,16 @@ function AppContent({ mode, setMode }) {
   const toggleTheme = () => {
     setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
   };
+const items = [
+  { text: 'Home', icon: <VscHome size={18} color="white" />, onClick: () => navigate('/') },
+  { text: 'CRM', icon: <VscOrganization size={18} color="white" />, onClick: () => navigate('/crm') },
+  { text: 'Customer Dashboard', icon: <VscDashboard size={18} color="white" />, onClick: () => navigate('/customer-dashboard') },
+  { text: 'Expenses', icon: <VscBook size={18} color="white" />, onClick: () => navigate('/expenses') },
+  { text: 'Inventory', icon: <VscLibrary size={18} color="white" />, onClick: () => navigate('/inventory') },
+  { text: 'Reports', icon: <VscGraphLine size={18} color="white" />, onClick: () => navigate('/reports') },
+  { text: 'Sales', icon: <VscServerProcess size={18} color="white" />, onClick: () => navigate('/sales') },
+  { text: 'Invoices', icon: <VscFile size={18} color="white" />, onClick: () => navigate('/invoices') },
+];
 
   const handleSearch = () => {
     const query = searchQuery.trim().toLowerCase();
@@ -216,15 +232,35 @@ function AppContent({ mode, setMode }) {
     setSearchQuery('');
   };
 
+
+
+  // State to control dock visibility
+  const [dockVisible, setDockVisible] = React.useState(false);
+
+  // Show dock on mouse move near bottom, hide after mouse leaves
+  React.useEffect(() => {
+    const handleMouseMove = (e) => {
+      const threshold = 80; // px from bottom
+      if (window.innerHeight - e.clientY < threshold) {
+        setDockVisible(true);
+      } else if (dockVisible) {
+        setDockVisible(false);
+      }
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+    // eslint-disable-next-line
+  }, [dockVisible]);
+
   return (
     <Box
       sx={{
         display: 'flex',
         minHeight: '100vh',
         bgcolor: 'background.default',
+        flexDirection: 'column',
       }}
     >
-
       <AppBar elevation={0}
         position="fixed"
         color="transparent"
@@ -235,7 +271,6 @@ function AppContent({ mode, setMode }) {
         }}
       >
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', minHeight: 60 }}>
-
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <IconButton edge="start" onClick={handleDrawerToggle} sx={{
               mr: 2, color: '#19191B'
@@ -251,7 +286,6 @@ function AppContent({ mode, setMode }) {
               </Typography>
             </Box>
           </Box>
-
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             {/* Search Box */}
             <Box
@@ -287,61 +321,94 @@ function AppContent({ mode, setMode }) {
         </Toolbar>
       </AppBar>
 
-      <NavigationDrawer open={open && !isMobile} handleDrawerToggle={handleDrawerToggle} />
-
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: { xs: 2, md: 4 },
-          ml: open && !isMobile ? `${drawerWidth}px` : 0,
-          transition: 'margin-left 0.3s',
-          background: 'var(--color-bg, #f7f7fa)',
-        }}
-      >
-        <Toolbar />
-
-        <Container
-          maxWidth="lg"
-          sx={{
-            flexGrow: 1,
-            bgcolor: 'background.paper',
-            color: 'text.primary',
-            borderRadius: 3,
-            boxShadow: '0 2px 20px var(--color-card-shadow, rgba(28,28,29,0.04))',
-            p: { xs: 2, md: 3, lg: 4 },
-            minHeight: 'calc(100vh - 112px)'
-          }}
-        >
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/crm" element={<CRM />} />
-            <Route path="/customer-dashboard" element={<CustomerDashboard />} />
-            <Route path="/expenses" element={<Expenses />} />
-            <Route path="/inventory" element={<Inventory />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/sales" element={<Sales />} />
-            <Route path="/invoices" element={<Invoices />} />
-          </Routes>
-        </Container>
+      <Box sx={{ display: 'flex', flex: 1, width: '100%' }}>
+        <NavigationDrawer open={open && !isMobile} handleDrawerToggle={handleDrawerToggle} />
 
         <Box
-          component="footer"
+          component="main"
           sx={{
-            mt: 4,
-            textAlign: 'center',
-            py: 2,
-            borderTop: '1px solid',
-            borderColor: 'divider',
-            bgcolor: 'background.paper',
-            color: 'text.secondary',
-            fontWeight: 400,
-            fontSize: 15
+            flexGrow: 1,
+            p: { xs: 2, md: 4 },
+            ml: open && !isMobile ? `${drawerWidth}px` : 0,
+            transition: 'margin-left 0.3s',
+            background: 'var(--color-bg, #f7f7fa)',
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: 'calc(100vh - 60px - 68px)', // 60px AppBar, 68px Dock
           }}
         >
-          <Typography variant="body2">
-            © 2025 ADHIL . All rights reserved.
-          </Typography>
+          <Toolbar />
+
+          <Container
+            maxWidth="lg"
+            sx={{
+              flexGrow: 1,
+              bgcolor: 'background.paper',
+              color: 'text.primary',
+              borderRadius: 3,
+              boxShadow: '0 2px 20px var(--color-card-shadow, rgba(28,28,29,0.04))',
+              p: { xs: 2, md: 3, lg: 4 },
+              minHeight: 'calc(100vh - 112px - 68px)' // subtract Dock height
+            }}
+          >
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/crm" element={<CRM />} />
+              <Route path="/customer-dashboard" element={<CustomerDashboard />} />
+              <Route path="/expenses" element={<Expenses />} />
+              <Route path="/inventory" element={<Inventory />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/sales" element={<Sales />} />
+              <Route path="/invoices" element={<Invoices />} />
+            </Routes>
+          </Container>
+
+          <Box
+            component="footer"
+            sx={{
+              mt: 4,
+              textAlign: 'center',
+              py: 2,
+              borderTop: '1px solid',
+              borderColor: 'divider',
+              bgcolor: 'background.paper',
+              color: 'text.secondary',
+              fontWeight: 400,
+              fontSize: 15
+            }}
+          >
+            <Typography variant="body2">
+              © 2025 ADHIL . All rights reserved.
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Dock fixed at the bottom, only visible on hover near bottom */}
+      <Box
+        sx={{
+          position: 'fixed',
+          left: 0,
+          bottom: 0,
+          width: '100vw',
+          zIndex: (theme) => theme.zIndex.drawer + 2,
+          bgcolor: 'transparent',
+          pointerEvents: dockVisible ? 'auto' : 'none',
+        }}
+      >
+        <Box
+          sx={{
+            opacity: dockVisible ? 1 : 0,
+            transition: 'opacity 0.25s',
+            pointerEvents: dockVisible ? 'auto' : 'none',
+          }}
+        >
+          <Dock
+            items={items}
+            panelHeight={68}
+            baseItemSize={50}
+            magnification={70}
+          />
         </Box>
       </Box>
     </Box>

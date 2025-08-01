@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Box, Paper, Typography, TextField, Select, MenuItem, Table, TableHead, TableRow, TableCell, TableBody, Snackbar, TableContainer, InputLabel, FormControl
 } from '@mui/material';
+import TextType from './TextType';
 
 export default function CustomerDashboard() {
   const [allCustomers, setAllCustomers] = useState([]);
@@ -51,11 +52,12 @@ export default function CustomerDashboard() {
   };
 
   return (
-    <div className="container">
-    <Box sx={{ mt: 4 }}>
+    
+    <Box sx={{ mt: 4, alignItems: 'center', display: 'flex', flexDirection: 'column' }}>
+                        <h1 >Customer Dashboard</h1>
       <Paper sx={{ p: 3, mb: 4 }} elevation={3}>
-        <Typography variant="h4" gutterBottom>Customer Sales Dashboard</Typography>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 1200 }}>
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 1200, minWidth: 1000}}>
           <TextField label="Search customers..." onChange={handleSearch} />
           <FormControl>
             <InputLabel id="customerSelect-label">Select Customer</InputLabel>
@@ -75,8 +77,8 @@ export default function CustomerDashboard() {
         </Box>
       </Paper>
       {sales.length > 0 && (
-        <Paper sx={{ p: 3, mb: 2 }} elevation={3}>
-          <TableContainer>
+        <Paper sx={{ p: 3, mb: 2, }} elevation={3}>
+          <TableContainer sx= {{minWidth: 1000}}>
             <Table id="salesTable">
               <TableHead>
                 <TableRow>
@@ -118,6 +120,6 @@ export default function CustomerDashboard() {
         message={snackbar.message}
       />
     </Box>
-    </div>
+    
   );
 } 

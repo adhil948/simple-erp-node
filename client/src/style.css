@@ -152,7 +152,7 @@ button {
 
 button:hover {
   background-color: var(--color-btn-bg-hover, #18191b);
-  color: var(--color-btn-text-hover, #5e43d6);
+  color: var(--color-btn-text-hover, #50a1a7);
   transform: translateY(-1.5px) scale(1.03);
 }
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './Home.css';
 import SalesChart from './SalesChart.js';
-
+import TextType from './TextType';
 
 export default function Home() {
 const [salesTrend,setSalesTrend] = useState([]);
@@ -48,10 +48,22 @@ window.location.href = path;
 
 return (
 <div>
-<div className="container">
+
 <header className="erp-header">
-<h1>📊 ERP Dashboard</h1>
-<p>Manage your business efficiently</p>
+<h1 ><strong><TextType 
+  text={["ERP Dashboard"]}
+  typingSpeed={100}
+  pauseDuration={1500}
+  showCursor={false}
+  cursorCharacter="."
+/></strong></h1>
+<h2><TextType 
+  text={["All-in-One Platform to Run Your Business Efficiently."]}
+  typingSpeed={50}
+  pauseDuration={1500}
+  showCursor={true}
+  cursorCharacter="_"
+/></h2>
 </header>
 
 
@@ -136,6 +148,6 @@ onClick={() => handleCardClick('/inventory')}
 )}
 </section>
 </div>
-</div>
+
 );
 }

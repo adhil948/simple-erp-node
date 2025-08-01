@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Box, Paper, Typography, TextField, Select, MenuItem, Button, Table, TableHead, TableRow, TableCell, TableBody, Snackbar, TableContainer, InputLabel, FormControl
+  Box, Paper, Typography, TextField, Select, MenuItem, Button, Table, TableHead, TableRow, TableCell, TableBody, Snackbar, TableContainer, InputLabel, FormControl,
+  Collapse, 
 } from '@mui/material';
+import { Add, Remove } from '@mui/icons-material';
 
 export default function Expenses() {
   const [expenses, setExpenses] = useState([]);
@@ -9,6 +11,7 @@ export default function Expenses() {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [filter,setFilter] = useState({ category: '', date: '' ,month: ''});
   const [filteredExpenses, setFilteredExpenses] = useState([]);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     let result = [...expenses];
@@ -96,9 +99,20 @@ export default function Expenses() {
 
 
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box sx={{ mt: 1}}>
+      <h1 gutterBottom align="center">Expense Tracker</h1>
       <Paper sx={{ p: 3, mb: 4 }} elevation={3}>
-        <Typography variant="h4" gutterBottom align="center">Expense Tracker</Typography>
+
+          <Button
+                    variant="contained"
+                    color={showForm ? 'secondary' : 'primary'}
+                    onClick={() => setShowForm(prev => !prev)}
+                    startIcon={showForm ? <Remove /> : <Add />}
+                  >
+                    {showForm ? 'Hide Form' : 'Add New lead'}
+                  </Button>
+
+          <Collapse in={showForm}>
         <Box component="form" id="expenseForm" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 1200 }}>
           <TextField label="Expense Name" id="name" value={form.name} onChange={handleChange} required />
           <FormControl>
@@ -116,6 +130,8 @@ export default function Expenses() {
           <TextField label="Date" id="date" value={form.date} onChange={handleChange} type="date" InputLabelProps={{ shrink: true }} required />
           <Button type="submit" variant="contained">Add Expense</Button>
         </Box>
+        </Collapse>
+        
       </Paper>
 <Paper sx={{ p: 2, mb: 3 }} elevation={20}>
   <Typography variant="h6" gutterBottom>Filter Expenses</Typography>
