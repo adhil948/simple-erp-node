@@ -11,9 +11,12 @@ const invoiceSchema = new mongoose.Schema({
   items: [invoiceItemSchema],
   total: { type: Number, required: true },
   status: { type: String, enum: ['unpaid', 'partially_paid', 'paid'], default: 'unpaid' },
-  dueDate: { type: Date },
+  dueDate: { type: Date, default: Date.now },
   payments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Payment' }],
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+    storeGSTIN: { type: String },
+  customerGSTIN: { type: String }
+  // Optionally, add sale ref here if needed: sale: { type: mongoose.Schema.Types.ObjectId, ref: 'Sale' }
 });
 
-module.exports = mongoose.model('Invoice', invoiceSchema); 
+module.exports = mongoose.model('Invoice', invoiceSchema);

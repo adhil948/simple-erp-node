@@ -99,7 +99,7 @@ onClick={() => handleCardClick('/inventory')}
 <p>&#8377;{stats.totalInventoryValue}</p>
 </div>
 <div>
-<section className="erp-sales-chart" style={{ maxWidth: 1200, margin: '32px auto' }}>
+{/* <section className="erp-sales-chart" style={{ maxWidth: 1200, margin: '32px auto' }}>
     <h2 style={{marginTop:32}}>📈 Sales Trend (Last 15 Days)</h2>
     {salesTrend.length > 0 ? (
         <SalesChart
@@ -136,7 +136,7 @@ onClick={() => handleCardClick('/inventory')}
     ) : (
         <div className="erp-loading">Loading chart...</div>
     )}
-</section>
+</section> */}
 </div>
 </>
 

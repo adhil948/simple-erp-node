@@ -1,5 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation,useParams,useNavigate } from 'react-router-dom';
+
+
+
 
 // Simple styles for beautification and print
 const styles = {
@@ -214,12 +217,19 @@ export default function Invoices() {
           body: JSON.stringify(payload)
         });
       }
-      if (!res.ok) {
-        const errData = await res.json();
-        setCreateError(errData.error || `Failed to ${editingInvoice ? 'update' : 'create'} invoice`);
-      } else {
-        resetForm(); fetchInvoices();
-      }
+if (!res.ok) {
+  const errData = await res.json();
+  setCreateError(errData.error || `Failed to ${editingInvoice ? 'update' : 'create'} invoice`);
+} else {
+  const createdInvoice = await res.json();
+  resetForm(); 
+  // Immediately show the just-created invoice!
+  setSelectedInvoice(createdInvoice);
+
+  // You should still update the list in background if you want
+  fetchInvoices();
+}
+
     } catch {
       setCreateError(`Failed to ${editingInvoice ? 'update' : 'create'} invoice`);
     }
@@ -264,6 +274,18 @@ export default function Invoices() {
     window.scrollTo(0, 0);
     setTimeout(() => window.print(), 200);
   };
+  const { id: routeInvoiceId } = useParams();
+const navigate = useNavigate();
+
+useEffect(() => {
+  if (routeInvoiceId) {
+    fetch(`/api/invoices/${routeInvoiceId}`)
+      .then(r => r.json())
+      .then(inv => setSelectedInvoice(inv))
+      .catch(() => setSelectedInvoice(null));
+  }
+},[routeInvoiceId]);
+
 
   const invoiceTotal = newInvoice.items.reduce((sum, item) => sum + (Number(item.quantity) * Number(item.price) || 0), 0);
 

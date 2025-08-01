@@ -77,7 +77,8 @@ export default function Sales() {
       state: {
         sale: {
           customerId: customer._id,
-          items: saleItems
+          items: saleItems,
+          saleId: sale._id
         }
       }
     });

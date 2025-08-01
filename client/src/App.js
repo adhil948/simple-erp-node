@@ -11,6 +11,7 @@ import Home from './Home';
 import Invoices from './Invoices';
 import './style.css';
 import Dock from './Dock';
+
 import { VscHome, VscOrganization, VscDashboard, VscBook, VscLibrary, VscGraphLine, VscServerProcess, VscFile } from 'react-icons/vsc';
 
 
@@ -281,7 +282,7 @@ const items = [
               <img src="/logo1.png" alt="ERP Logo" style={{ width: 30, marginRight: 10, filter: 'grayscale(100%)' }} />
               <Typography variant="h6" noWrap sx={{
                 fontWeight: 600, color: 'var(--color-heading)', fontSize: 20
-              }}>
+              }} onClick={() => navigate('/')}>
                 ERP System
               </Typography>
             </Box>
@@ -360,6 +361,7 @@ const items = [
               <Route path="/reports" element={<Reports />} />
               <Route path="/sales" element={<Sales />} />
               <Route path="/invoices" element={<Invoices />} />
+              <Route path="/invoices/:id" element={<Invoices />} />
             </Routes>
           </Container>
 
