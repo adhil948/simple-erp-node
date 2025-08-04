@@ -21,6 +21,7 @@ export default function Invoices() {
   const [products, setProducts] = useState([]);
   const [newInvoice, setNewInvoice] = useState({ customer: '', items: [{ product: '', quantity: 1, price: 0 }], dueDate: '' });
   const [createError, setCreateError] = useState('');
+  const [discount, setDiscount] = useState(0);
 
   const location = useLocation();
   const printRef = useRef();
@@ -226,6 +227,8 @@ export default function Invoices() {
         setPaymentAmount={setPaymentAmount}
         setPaymentMethod={setPaymentMethod}
         setPaymentNote={setPaymentNote}
+        discount={discount}
+        setDiscount={setDiscount}
       />
     );
   }
