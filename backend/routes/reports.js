@@ -6,7 +6,6 @@ const Product = require("../models/Product");
 const Customer = require("../models/Customer");
 const Payment = require('../models/Payment');
 
-
 // GET /api/reports/summary
 router.get("/summary", async (req, res) => {
   try {
@@ -35,8 +34,6 @@ router.get("/summary", async (req, res) => {
       { $project: { productName: "$_id", totalQty: 1, _id: 0 } }
     ]);
 
-    
-
     res.json({
       totalSales,
       totalCustomers,
@@ -50,7 +47,7 @@ router.get("/summary", async (req, res) => {
   }
 });
 
-
+// GET /api/reports/sales-daily
 router.get("/sales-daily", async (req, res) => {
   try {
     const { start, end, productId } = req.query;
@@ -58,10 +55,12 @@ router.get("/sales-daily", async (req, res) => {
     // Build match stage for date range filter
     let matchStage = {};
     if (start && end) {
-      matchStage.createdAt = {
-        $gte: new Date(start),
-        $lte: new Date(end)
-      };
+      // Make end date inclusive (till end of the day)
+      const startDate = new Date(start + 'T00:00:00.000Z');
+      const endDate = new Date(end + 'T23:59:59.999Z');
+      matchStage.createdAt = { $gte: startDate, $lte: endDate };
+      // For debugging, you can uncomment the next line:
+      // console.log('SALES REPORT RANGE:', { startDate, endDate });
     }
 
     // If productId is present, only sum that product in sales
@@ -88,7 +87,7 @@ router.get("/sales-daily", async (req, res) => {
       const sales = await Sale.aggregate(aggregatePipeline);
 
       // Respond with one dataset
-      res.json(
+      return res.json(
         sales.map(s => ({
           date: s._id.date,
           total: s.total,
@@ -111,7 +110,7 @@ router.get("/sales-daily", async (req, res) => {
 
       const sales = await Sale.aggregate(aggregatePipeline);
 
-      res.json(
+      return res.json(
         sales.map(s => ({
           date: s._id,
           total: s.total
@@ -124,7 +123,6 @@ router.get("/sales-daily", async (req, res) => {
   }
 });
 
-
 // List all payments
 router.get('/payments', async (req, res) => {
   try {
@@ -134,6 +132,5 @@ router.get('/payments', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 module.exports = router;
