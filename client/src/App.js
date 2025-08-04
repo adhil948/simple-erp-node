@@ -11,8 +11,9 @@ import Home from './Home';
 import Invoices from './Invoice/Invoices';
 import './style.css';
 import Dock from './Dock';
+import PaymentDashboard from './PaymentDashboard';
 
-import { VscHome, VscOrganization, VscDashboard, VscBook, VscLibrary, VscGraphLine, VscServerProcess, VscFile } from 'react-icons/vsc';
+import { VscHome, VscOrganization, VscDashboard, VscBook, VscLibrary, VscGraphLine, VscServerProcess, VscFile, VscSymbolOperator } from 'react-icons/vsc';
 
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -205,6 +206,7 @@ const items = [
   { text: 'Reports', icon: <VscGraphLine size={18} color="white" />, onClick: () => navigate('/reports') },
   { text: 'Sales', icon: <VscServerProcess size={18} color="white" />, onClick: () => navigate('/sales') },
   { text: 'Invoices', icon: <VscFile size={18} color="white" />, onClick: () => navigate('/invoices') },
+  { text: 'Payments', icon: <VscSymbolOperator size={18} color="white" />, onClick: () => navigate('/payments') },
 ];
 
   const handleSearch = () => {
@@ -362,6 +364,7 @@ const items = [
               <Route path="/sales" element={<Sales />} />
               <Route path="/invoices" element={<Invoices />} />
               <Route path="/invoices/:id" element={<Invoices />} />
+              <Route path="/payments" element={<PaymentDashboard />} />
             </Routes>
           </Container>
 

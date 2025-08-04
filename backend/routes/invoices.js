@@ -74,11 +74,15 @@ router.put('/:id', async (req, res) => {
 // Delete invoice
 router.delete('/:id', async (req, res) => {
   try {
-    const invoice = await Invoice.findByIdAndDelete(req.params.id);
-    if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
-    res.json({ message: 'Invoice deleted' });
+    // First, delete the invoice
+    await Invoice.findByIdAndDelete(req.params.id);
+
+    // Then, delete related payments
+    await Payment.deleteMany({ invoice: req.params.id });
+
+    res.json({ msg: 'Invoice and related payments deleted' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Server Error' });
   }
 });
 

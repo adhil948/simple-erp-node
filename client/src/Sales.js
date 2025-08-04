@@ -36,11 +36,12 @@ export default function Sales() {
     setProductMap(map);
   };
 
-  const loadSales = async () => {
-    const res = await fetch('/api/sales');
-    const data = await res.json();
-    setSales(data);
-  };
+const loadSales = async () => {
+  const res = await fetch('/api/sales');
+  const data = await res.json();
+  data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort descending
+  setSales(data);
+};
 
   const handleFormChange = e => {
     setForm({ ...form, [e.target.id || e.target.name]: e.target.value });

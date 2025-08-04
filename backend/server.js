@@ -8,6 +8,7 @@ const reportsRoutes = require('./routes/reports');
 const expenseRoutes = require("./routes/expenses");
 const invoicesRouter = require('./routes/invoices');
 const path = require("path");
+const paymentRouter = require('./routes/Payment');
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/reports', reportsRoutes); 
 app.use('/api/expenses', expenseRoutes);
 app.use('/api/invoices', invoicesRouter);
+app.use('/api/payments', paymentRouter);
 
 
 const port = 5000;
