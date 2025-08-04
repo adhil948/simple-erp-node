@@ -23,41 +23,57 @@ export default function InvoiceView({
         <button onClick={() => setSelectedInvoice(null)} style={{...styles.actionBtn, background:"#888"}}>← Back to Invoices</button>
         <button style={styles.printBtn} onClick={handlePrint}>🖨️ Print Invoice</button>
       </div>
-      <div id="printable-invoice" style={styles.invoiceCard} ref={printRef}>
-        <h2 style={{letterSpacing:1, marginBottom:12, color:"#374151"}}>Tax Invoice</h2>
-<div style={{ display: 'flex', justifyContent: 'space-between', gap: 40 }}>
-  {/* Left: Customer Details */}
-  <div style={{ flex: 1 }}>
-    <p>
-      <span style={{ fontWeight: 600 }}>Customer:</span>{" "}
-      <span style={styles.highlight}>{selectedInvoice.customer?.name || "-"}</span><br />
-
-      <span style={{ fontWeight: 600 }}>GST:</span>{" "}
-      <span style={styles.highlight}>{selectedInvoice.customer?.gstIN || "-"}</span><br />
-
-      <span style={{ fontWeight: 600 }}>Billing Address:</span><br />
-      <span style={styles.highlight}>
-        {selectedInvoice.customer?.address
-          ? `${selectedInvoice.customer.address.street}, ${selectedInvoice.customer.address.city}, ${selectedInvoice.customer.address.state} - ${selectedInvoice.customer.address.zip}, ${selectedInvoice.customer.address.country}`
-          : "-"}
-      </span>
+<div id="printable-invoice" style={styles.invoiceCard} ref={printRef}>
+  {/* Company Header */}
+  <div style={{ textAlign: 'center', marginBottom: 24 }}>
+    <h1 style={{ margin: 0, fontSize: 28, letterSpacing: 0.8, color: '#2e3b4e' }}>Star Fitness Equipment Pvt. Ltd.</h1>
+    <p style={{ margin: 4, fontSize: 14, color: '#555' }}>
+      102, Industrial Estate, Phase 1, Trivandrum, Kerala - 695001, India<br />
+      Phone: +91 98765 43210 | Email: support@starfitness.com | GSTIN: 32ABCDE1234F1Z5
     </p>
+    <h2 style={{ letterSpacing: 1, marginTop: 16, marginBottom: 12, color: "#374151" }}>Tax Invoice</h2>
   </div>
 
-  {/* Right: Price & Invoice Details */}
-  <div style={{ flex: 1, }}>
-    <p>
-      <span style={{ fontWeight: 600 }}>Status:</span>{" "}
-      <span>{selectedInvoice.status || '-'}</span><br />
+  {/* Customer and Invoice Details */}
+  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 40, marginBottom: 20 }}>
+    
+    {/* Left: Customer Details */}
+    <div style={{ flex: 1 }}>
+      <p style={{ fontSize: 14, marginBottom: 4 }}>
+        <strong>Customer:</strong><br />
+        <span style={styles.highlight}>{selectedInvoice.customer?.name || "-"}</span>
+      </p>
+      <p style={{ fontSize: 14, marginBottom: 4 }}>
+        <strong>GSTIN:</strong><br />
+        <span style={styles.highlight}>{selectedInvoice.customer?.gstIN || "-"}</span>
+      </p>
+      <p style={{ fontSize: 14 }}>
+        <strong>Billing Address:</strong><br />
+        <span style={styles.highlight}>
+          {selectedInvoice.customer?.address
+            ? `${selectedInvoice.customer.address.street}, ${selectedInvoice.customer.address.city}, ${selectedInvoice.customer.address.state} - ${selectedInvoice.customer.address.zip}, ${selectedInvoice.customer.address.country}`
+            : "-"}
+        </span>
+      </p>
+    </div>
 
-      <span style={{ fontWeight: 600 }}>Total:</span>{" "}
-      <span style={styles.highlight}>{formatCurrency(selectedInvoice.total)}</span><br />
+    {/* Right: Invoice Details */}
+    <div style={{ flex: 1 }}>
+      <p style={{ fontSize: 14, marginBottom: 4 }}>
+        <strong>Status:</strong><br />
+        <span>{selectedInvoice.status || '-'}</span>
+      </p>
+      <p style={{ fontSize: 14, marginBottom: 4 }}>
+        <strong>Total:</strong><br />
+        <span style={styles.highlight}>{formatCurrency(selectedInvoice.total)}</span>
+      </p>
+      <p style={{ fontSize: 14 }}>
+        <strong>Due Date:</strong><br />
+        <span>{selectedInvoice.dueDate ? new Date(selectedInvoice.dueDate).toLocaleDateString() : '-'}</span>
+      </p>
+    </div>
 
-      <span style={{ fontWeight: 600 }}>Due Date:</span>{" "}
-      <span>{selectedInvoice.dueDate ? new Date(selectedInvoice.dueDate).toLocaleDateString() : '-'}</span>
-    </p>
   </div>
-</div>
 
         <h3 style={{margin:"14px 0 0 0"}}>Items</h3>
         <table style={styles.table}>
