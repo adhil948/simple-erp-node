@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom'; // Add this import
 import {
   Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
@@ -11,12 +12,15 @@ import { Add, Remove } from '@mui/icons-material';
 import { useTheme } from '@mui/material';
 
 export default function CRM() {
+  const location = useLocation(); // Add this
+  
   const [entries, setEntries] = useState([]);
   const [form, setForm] = useState({
     name: '', email: '', phone: '', company: '', gstIN: '',
     address: { street: '', city: '', state: '', zip: '', country: '' },
     status: 'Lead', notes: ''
   });
+
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
@@ -24,10 +28,7 @@ export default function CRM() {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-const [editForm, setEditForm] = useState(null);
-
-
-
+  const [editForm, setEditForm] = useState(null);
 
   const loadCRM = async () => {
     setLoading(true);
@@ -41,7 +42,29 @@ const [editForm, setEditForm] = useState(null);
     setLoading(false);
   };
 
-  useEffect(() => { loadCRM(); }, []);
+  useEffect(() => { 
+    loadCRM(); 
+  }, []);
+
+  // Add this useEffect to handle navigation state
+  useEffect(() => {
+    // Check if we were navigated here with showForm state
+    if (location.state?.showForm) {
+      setShowForm(true);
+      
+      // Optional: Show a message indicating we came from sales
+      if (location.state?.fromPage === 'sales') {
+        setSnackbar({ 
+          open: true, 
+          message: 'Add new customer from sales', 
+          severity: 'info' 
+        });
+      }
+      
+      // Clear the state from browser history
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleChange = e => {
     const { id, name, value } = e.target;
@@ -150,7 +173,7 @@ const handleEdit = async id => {
         </Box>
 
         <Collapse in={showForm}>
-          <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 600, mb: 3 }}>
+          <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 1600, mb: 3 }}>
             <TextField label="Full Name" id="name" value={form.name} onChange={handleChange} required fullWidth />
             <TextField label="Email" id="email" value={form.email} onChange={handleChange} type="email" fullWidth />
             <TextField label="Phone" id="phone" value={form.phone} onChange={handleChange} fullWidth />

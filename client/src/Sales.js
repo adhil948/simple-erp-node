@@ -189,6 +189,15 @@ const loadSales = async () => {
     }
   };
 
+const handleNavigateToCRM = () => {
+  navigate('/crm', { 
+    state: { 
+      showForm: true,
+      fromPage: 'sales'
+    } 
+  });
+};
+
   return (
     <Box sx={{ mt: 4 }} justifyContent="center">
       <Paper sx={{ p: 3, mb: 4 }} elevation={3}>
@@ -212,6 +221,7 @@ const loadSales = async () => {
               ))}
             </Select>
           </FormControl>
+          <button type="button" onClick={handleNavigateToCRM} style={{ marginBottom: 16 }}>Add New Customer</button>
           <Box id="itemInputs" sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
             <FormControl sx={{ minWidth: 350 }}>
               <InputLabel id="productName-label">Product</InputLabel>
