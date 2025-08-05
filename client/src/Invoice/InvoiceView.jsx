@@ -86,6 +86,18 @@ export default function InvoiceView({
     }
   }
 
+
+  const formatDate = (dateString) => {
+  if (!dateString) {
+    return '-';
+  }
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
   return (
     <div style={styles.container}>
       {/* TOP Action Buttons */}
@@ -140,10 +152,14 @@ export default function InvoiceView({
               <strong>Total:</strong><br />
               <span style={styles.highlight}>{formatCurrency(grandTotal)}</span>
             </p>
-            <p style={{ fontSize: 14 }}>
-              <strong>Due Date:</strong><br />
-              <span>{selectedInvoice.dueDate ? new Date(selectedInvoice.dueDate).toLocaleDateString() : '-'}</span>
-            </p>
+                        <p style={{ fontSize: 14 }}>
+  <strong>Issued Date:</strong><br />
+  <span>{formatDate(selectedInvoice.createdAt)}</span>
+</p>
+<p style={{ fontSize: 14 }}>
+  <strong>Due Date:</strong><br />
+  <span>{formatDate(selectedInvoice.dueDate)}</span>
+</p>
           </div>
         </div>
 
