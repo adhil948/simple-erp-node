@@ -36,7 +36,7 @@ router.get('/:id', async (req, res) => {
 // Create invoice and link to sale if saleId is provided
 router.post('/', async (req, res) => {
   try {
-    const { customer, items, dueDate, saleId ,storeGst,customerGst} = req.body;
+    const { customer, items, dueDate,discount, saleId ,storeGst,customerGst} = req.body;
     let total = 0;
     for (const item of items) {
       total += item.price * item.quantity;
@@ -44,11 +44,17 @@ router.post('/', async (req, res) => {
 
     console.log(saleId)
 
-    const invoiceData = { customer, items, total, dueDate ,storeGst,customerGst};
+    const invoiceData = { customer, items, total, dueDate ,discount,storeGst,customerGst};
     // Optionally (not required by your schema), you can add sale: saleId to Invoice if you add 'sale' field to schema
 
     const invoice = new Invoice(invoiceData);
     await invoice.save();
+
+        const populatedInvoice = await Invoice.findById(invoice._id)
+      .populate('customer')
+      .populate('items.product');
+    
+    res.json(populatedInvoice);
 
     // If created for a sale, update the sale to link this invoice
     if (saleId) {

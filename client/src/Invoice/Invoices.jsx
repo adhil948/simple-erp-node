@@ -19,9 +19,12 @@ export default function Invoices() {
   const [showCreate, setShowCreate] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
-  const [newInvoice, setNewInvoice] = useState({ customer: '', items: [{ product: '', quantity: 1, price: 0 }], dueDate: '' });
+  const [newInvoice, setNewInvoice] = useState({ customer: '', items: [{ product: '', quantity: 1, price: 0 }],discount:0, dueDate: '' });
   const [createError, setCreateError] = useState('');
-  const [discount, setDiscount] = useState(0);
+  // Add this state to your main Invoices component
+const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+
+  // const [discount, setDiscount] = useState(0);
 
   const location = useLocation();
   const printRef = useRef();
@@ -51,7 +54,8 @@ export default function Invoices() {
           price: item.price
         })),
         saleId:saleId,
-        dueDate: ''
+        dueDate: '',
+        discount:0
       });
       window.history.replaceState({}, document.title);
     }
@@ -77,8 +81,9 @@ export default function Invoices() {
       items: invoice.items.map(i => ({
         product: i.product?._id || i.product,
         quantity: i.quantity,
-        price: i.price
+        price: i.price,
       })),
+      discount:invoice.discount || 0,
       dueDate: invoice.dueDate ? invoice.dueDate.substr(0, 10) : ''
     });
     setShowCreate(false); setCreateError(''); setSelectedInvoice(null);
@@ -110,7 +115,7 @@ export default function Invoices() {
   const addItem = () => setNewInvoice({ ...newInvoice, items: [...newInvoice.items, { product: '', quantity: 1, price: 0 }] });
   const removeItem = (idx) => setNewInvoice({ ...newInvoice, items: newInvoice.items.filter((_, i) => i !== idx) });
   const resetForm = () => {
-    setNewInvoice({ customer: '', items: [{ product: '', quantity: 1, price: 0 }], dueDate: '' });
+    setNewInvoice({ customer: '', items: [{ product: '', quantity: 1, price: 0 }], discount:0,dueDate: '' });
     setCreateError(''); setEditingInvoice(null); setShowCreate(false);
   };
 
@@ -130,8 +135,12 @@ export default function Invoices() {
           quantity: Number(item.quantity),
           price: Number(item.price)
         })),
-        dueDate: newInvoice.dueDate
+        dueDate: newInvoice.dueDate,
+        discount: Number(newInvoice.discount) || 0 
       };
+
+        console.log('Payload being sent:', payload);
+  console.log('newInvoice.discount:', newInvoice.discount);
       if(newInvoice.saleId) payload.saleId = newInvoice.saleId;
       let res;
       if (editingInvoice) {
@@ -141,7 +150,8 @@ export default function Invoices() {
           body: JSON.stringify(payload)
         });
       } else {
-        res = await fetch('/api/invoices', {
+        console.log('Creating new invoice with payload:', payload);
+        res = await fetch('/api/invoices/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -186,6 +196,10 @@ export default function Invoices() {
         const updated = await fetch(`/api/invoices/${selectedInvoice._id}`);
         const updatedInvoice = await updated.json();
         setSelectedInvoice(updatedInvoice);
+
+             setPaymentAmount('');
+      setPaymentMethod('cash');
+      setPaymentNote('');
         fetchInvoices();
       }
     } catch {
@@ -227,8 +241,10 @@ export default function Invoices() {
         setPaymentAmount={setPaymentAmount}
         setPaymentMethod={setPaymentMethod}
         setPaymentNote={setPaymentNote}
-        discount={discount}
-        setDiscount={setDiscount}
+              paymentModalOpen={paymentModalOpen}
+      setPaymentModalOpen={setPaymentModalOpen}
+        // discount={discount}
+        // setDiscount={setDiscount}
       />
     );
   }
@@ -247,6 +263,7 @@ export default function Invoices() {
         addItem={addItem}
         removeItem={removeItem}
         createError={createError}
+        setNewInvoice={setNewInvoice} 
       />
     );
   }

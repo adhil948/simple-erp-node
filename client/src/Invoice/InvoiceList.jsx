@@ -7,6 +7,7 @@ export default function InvoiceList({
   selectInvoice, 
   handleEditClick, 
   handleDeleteClick, 
+  handleCreateClick,
   showCreate, 
   setShowCreate, 
   setEditingInvoice, 

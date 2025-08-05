@@ -34,12 +34,16 @@ export default function InvoiceView({
   setPaymentAmount,
   setPaymentMethod,
   setPaymentNote,
-  discount,
-  setDiscount
+    paymentModalOpen,
+  setPaymentModalOpen
+  // discount,
+  // setDiscount
 }) {
   const invoiceRef = useRef();
   const receiptRef = useRef();
-  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  // const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+
+  const discount = selectedInvoice.discount || 0;
 
   // Calculate subtotal of items
   const itemsSubtotal = selectedInvoice.items.reduce(
@@ -134,7 +138,7 @@ export default function InvoiceView({
             </p>
             <p style={{ fontSize: 14, marginBottom: 4 }}>
               <strong>Total:</strong><br />
-              <span style={styles.highlight}>{formatCurrency(selectedInvoice.total)}</span>
+              <span style={styles.highlight}>{formatCurrency(grandTotal)}</span>
             </p>
             <p style={{ fontSize: 14 }}>
               <strong>Due Date:</strong><br />
@@ -175,29 +179,9 @@ export default function InvoiceView({
             <td style={{ padding: "6px 4px", textAlign: 'right' }}>{formatCurrency(itemsSubtotal)}</td>
                 </tr>
                 <tr>
-            <td style={{ padding: "6px 4px", fontWeight: 500, textAlign: 'right' }}>Discount:</td>
-            <td style={{ padding: "6px 4px", textAlign: 'right' }}>
-              {selectedInvoice.status !== 'paid' ? (
-                <input
-                  type="number"
-                  min="0"
-                  value={discount}
-                  onChange={e => setDiscount(e.target.value)}
-                  placeholder="0"
-                  style={{
-              width: 90,
-              textAlign: 'right',
-              border: 'none',
-              background: 'transparent',
-              outline: 'none',
-              fontSize: 16,
-              fontFamily: 'inherit',
-              color: '#222'
-                  }}
-                />
-              ) : (
-                formatCurrency(appliedDiscount)
-              )}
+            <td style={{ padding: "6px 4px", fontWeight: 700, fontSize: 18, textAlign: 'right' }}>Discount:</td>
+            <td style={{ padding: "6px 4px", fontWeight: 700, fontSize: 18, textAlign: 'right' }}>
+              {formatCurrency(discount)}
             </td>
                 </tr>
                 <tr>

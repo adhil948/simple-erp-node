@@ -6,6 +6,7 @@ export default function InvoiceForm({
   editingInvoice,
   resetForm,
   newInvoice,
+  setNewInvoice,
   customers,
   products,
   handleCreateOrUpdateInvoice,
@@ -16,6 +17,20 @@ export default function InvoiceForm({
   createError
 }) {
   const invoiceTotal = newInvoice.items.reduce((sum, item) => sum + (Number(item.quantity) * Number(item.price) || 0), 0);
+  
+  const discount = Number(newInvoice.discount) || 0; // Use from newInvoice
+
+  // NEW: Handler to update discount in newInvoice state
+function setDiscount(value) {
+  console.log("Setting discount to:", value);
+  setNewInvoice({
+    ...newInvoice,
+    discount: value,
+
+  }
+);
+
+}
 
   return (
     <div style={styles.container}>
@@ -42,7 +57,9 @@ export default function InvoiceForm({
                   <th style={styles.th}>Product</th>
                   <th style={styles.th}>Quantity</th>
                   <th style={styles.th}>Price</th>
+                  
                   <th style={styles.th}>Subtotal</th>
+
                   <th style={styles.th}></th>
                 </tr>
               </thead>
@@ -66,9 +83,28 @@ export default function InvoiceForm({
               </tbody>
             </table>
             <button className="no-print" type="button" onClick={addItem} style={{ ...styles.actionBtn, marginLeft: 8 }}>Add Item</button>
-          </div>
-          <div style={{ marginBottom: 12, fontWeight: 'bold' }}>Total: {formatCurrency(invoiceTotal)}</div>
-          <div>
+<div style={{ marginBottom: 8, fontWeight: 'bold' }}>
+  Discount:&nbsp;
+  <input
+    type="number"
+    min="0"
+    value={discount}
+    onChange={e => handleCreateChange('discount', e.target.value)}
+    style={{
+      width: 90,
+      textAlign: 'right',
+      padding: '2px 6px',
+      fontWeight: 500,
+      borderRadius: 4,
+      border: '1px solid #ccc'
+    }}
+    placeholder="0"
+  />
+</div>
+<div style={{ marginBottom: 12, fontWeight: 'bold' }}>
+  Grand Total: {formatCurrency(invoiceTotal - (Number(discount) || 0))}
+</div>
+
             <button className="no-print" type="submit" disabled={!newInvoice.customer || newInvoice.items.some(item => !item.product || !item.quantity || !item.price)}>
               {editingInvoice ? 'Update Invoice' : 'Create Invoice'}
             </button>

@@ -8,10 +8,10 @@ export const styles = {
     width: '100%', marginBottom: 22, borderSpacing: 0, background: '#fff', borderRadius: 8, overflow: 'hidden'
   },
   th: {
-    background: '#e6f0fa', padding: 8, fontWeight: 600, fontSize: 16, borderBottom: '2px solid #dde'
+    textAlign:"left",background: '#e6f0fa', padding: 8, fontWeight: 600, fontSize: 16, borderBottom: '2px solid #dde'
   },
   td: {
-    padding: 8, fontSize: 15, borderBottom: '1px solid #eee'
+    textAlign:"left", padding: 8, fontSize: 15, borderBottom: '1px solid #eee'
   },
   actionBtn: {
     marginRight: 10, padding: "6px 18px", borderRadius: 6, border: 'none', cursor: 'pointer', background: "#2d72d9", color: "white"
