@@ -15,6 +15,10 @@ export default function InvoiceList({
   setSelectedInvoice,
   handlePrint
 }) {
+const sortedInvoices = [...invoices].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+
+  
   return (
     <div className="erp-container">
       <header className="erp-header">
@@ -23,7 +27,7 @@ export default function InvoiceList({
         </h1>
       </header>
 
-      <div style={{ marginBottom: 20 }}>
+      {/* <div style={{ marginBottom: 20 }}>
         <button
           className="erp-action-btn no-print"
           onClick={() => {
@@ -34,10 +38,12 @@ export default function InvoiceList({
         >
           {showCreate ? 'Cancel' : 'Create Invoice'}
         </button>
-      </div>
+      </div> */}
+
+      
 
       <div className="erp-card-list">
-        {invoices.map(inv => (
+        {sortedInvoices.map(inv => (
           <div
             key={inv._id}
             className={`erp-card invoice-card ${inv.status==='paid' ? 'paid' : ''}`}

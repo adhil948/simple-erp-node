@@ -25,6 +25,7 @@ export default function Inventory() {
     sku: "",
     quantity: "",
     price: "",
+    // tax:"",
     category: "",
   });
   const [search, setSearch] = useState("");
@@ -109,11 +110,13 @@ export default function Inventory() {
     const newName = prompt("Edit name:", product.name);
     const newQty = prompt("Edit quantity:", product.quantity);
     const newPrice = prompt("Edit price:", product.price);
+    // const newTax = prompt("Edit tax:",product.tax )
     const newCat = prompt("Edit category:", product.category);
     const updated = {
       name: newName,
       quantity: parseInt(newQty),
       price: parseFloat(newPrice),
+      // tax:parseFloat(newTax),
       category: newCat,
       sku: product.sku,
     };
@@ -231,6 +234,14 @@ export default function Inventory() {
                 type="number"
                 required
               />
+                            {/* <TextField
+                label="tax"
+                id="tax"
+                value={form.tax}
+                onChange={handleChange}
+                type="number"
+                required
+              /> */}
               <TextField
                 label="Category"
                 id="category"
@@ -321,6 +332,7 @@ export default function Inventory() {
                           : "▼"
                         : ""}
                     </TableCell>
+                    {/* <TableCell>Tax</TableCell> */}
                     <TableCell>Category</TableCell>
                     <TableCell>Actions</TableCell>
                   </TableRow>
@@ -332,6 +344,7 @@ export default function Inventory() {
                       <TableCell>{product.sku}</TableCell>
                       <TableCell>{product.quantity}</TableCell>
                       <TableCell>{product.price}</TableCell>
+                      {/* <TableCell>{product.tax}</TableCell> */}
                       <TableCell>{product.category || ""}</TableCell>
                       <TableCell>
                         <Button

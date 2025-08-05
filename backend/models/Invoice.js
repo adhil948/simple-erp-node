@@ -13,6 +13,7 @@ const invoiceSchema = new mongoose.Schema({
   status: { type: String, enum: ['unpaid', 'partially_paid', 'paid'], default: 'unpaid' },
   dueDate: { type: Date, default: Date.now },
   payments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Payment' }],
+  discount: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
     storeGSTIN: { type: String },
   customerGSTIN: { type: String }
