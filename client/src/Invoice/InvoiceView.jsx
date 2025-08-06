@@ -240,7 +240,7 @@ export default function InvoiceView({
     <tr>
       <th style={styles.th}>Amount</th>
       <th style={styles.th}>Method</th>
-      <th style={styles.th}>Date</th>
+      <th style={styles.th}>Date & Time</th>
       <th style={styles.th}>Note</th>
     </tr>
   </thead>

@@ -317,9 +317,9 @@ const items = [
             <IconButton onClick={toggleTheme} sx={{ mr: 1, color: '#242426' }}>
               {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
             </IconButton>
-            <IconButton color="inherit" sx={{ ml: 0.5 }}>
+            {/* <IconButton color="inherit" sx={{ ml: 0.5 }}>
               <Avatar alt="User" src="/static/images/avatar/1.jpg" />
-            </IconButton>
+            </IconButton> */}
           </Box>
         </Toolbar>
       </AppBar>
