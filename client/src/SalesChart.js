@@ -1,6 +1,8 @@
 // SalesChart.js
 import React, { useRef, useEffect } from 'react';
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || '';
+
 export default function SalesChart({ data, labels, datasets, height = 120, options = {} }) {
   const chartRef = useRef();
   const chartInstance = useRef();

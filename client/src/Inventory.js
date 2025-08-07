@@ -18,6 +18,8 @@ import {
   MenuItem,
 } from "@mui/material";
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || '';
+
 export default function Inventory() {
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState({
@@ -42,7 +44,7 @@ export default function Inventory() {
 
   const loadProducts = async () => {
     setLoading(true);
-    const res = await fetch("/api/products");
+    const res = await fetch(`${API_BASE_URL}/api/products`);
     const data = await res.json();
     setProducts(data);
     setLoading(false);
@@ -65,7 +67,7 @@ export default function Inventory() {
       price: parseFloat(form.price),
       category: form.category,
     };
-    const res = await fetch("/api/products", {
+    const res = await fetch(`${API_BASE_URL}/api/products`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(product),
@@ -91,7 +93,7 @@ export default function Inventory() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this product?")) return;
-    const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
+    const res = await fetch(`${API_BASE_URL}/api/products/${id}`, { method: "DELETE" });
     if (res.ok) {
       setSnackbar({ open: true, message: "Deleted!", severity: "success" });
       loadProducts();
@@ -105,7 +107,7 @@ export default function Inventory() {
   };
 
   const handleEdit = async (id) => {
-    const res = await fetch(`/api/products/${id}`);
+    const res = await fetch(`${API_BASE_URL}/api/products/${id}`);
     const product = await res.json();
     const newName = prompt("Edit name:", product.name);
     const newQty = prompt("Edit quantity:", product.quantity);
@@ -120,7 +122,7 @@ export default function Inventory() {
       category: newCat,
       sku: product.sku,
     };
-    const updateRes = await fetch(`/api/products/${id}`, {
+    const updateRes = await fetch(`${API_BASE_URL}/api/products/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updated),

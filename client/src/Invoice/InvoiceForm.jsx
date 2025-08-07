@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { styles } from './styles';
 import { formatCurrency } from './utils';
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || '';
+
 export default function InvoiceForm({
   editingInvoice,
   resetForm,

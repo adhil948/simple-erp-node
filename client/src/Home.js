@@ -37,6 +37,8 @@ function formatNumber(n) {
   return `${(n / 1_000_000_000).toFixed(1)}B`;
 }
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || '';
+
 export default function Home() {
   const theme = useTheme();
 
@@ -52,7 +54,7 @@ export default function Home() {
     async function loadDashboardStats() {
       setStatsLoading(true);
       try {
-        const res = await fetch("/api/reports/summary");
+        const res = await fetch(`${API_BASE_URL}/api/reports/summary`);
         if (!res.ok) throw new Error("API error");
         const data = await res.json();
         if (active) setStats(data);
@@ -79,7 +81,7 @@ export default function Home() {
         const qs = `?start=${start.toISOString().slice(0, 10)}&end=${end
           .toISOString()
           .slice(0, 10)}`;
-        const res = await fetch("/api/reports/sales-daily" + qs);
+        const res = await fetch(`${API_BASE_URL}/api/reports/sales-daily` + qs);
         if (!res.ok) throw new Error("API error");
         const data = await res.json();
         if (active) setSalesTrend(data);

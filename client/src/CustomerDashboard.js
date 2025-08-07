@@ -31,6 +31,8 @@ import {
 /* ------------------------------------------------------------------ */
 /* UTILS */
 /* ------------------------------------------------------------------ */
+
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || '';
 const formatDate = (d) => new Date(d).toLocaleDateString();
 const toCsv = (rows) =>
   [
@@ -74,7 +76,7 @@ export default function CustomerDashboard() {
 
   /* -------------------- handlers -------------------- */
   const loadCustomers = async () => {
-    const res = await fetch('/api/customers');
+    const res = await fetch(`${API_BASE_URL}/api/customers`);
     const data = await res.json();
     setAllCustomers(data);
     setFilteredCustomers(data);
@@ -96,7 +98,7 @@ export default function CustomerDashboard() {
 
   const handleLoadSales = async () => {
     if (!selectedCustomer) return;
-    const res = await fetch('/api/sales');
+    const res = await fetch(`${API_BASE_URL}/api/sales`);
     const allSales = await res.json();
     let filtered = allSales.filter((s) => s.customerName === selectedCustomer);
 

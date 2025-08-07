@@ -7,6 +7,8 @@ import InvoiceList from './InvoiceList';
 import InvoiceForm from './InvoiceForm';
 import InvoiceView from './InvoiceView';
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || '';
+
 export default function Invoices() {
   const [invoices, setInvoices] = useState([]);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
@@ -39,8 +41,8 @@ const [paymentModalOpen, setPaymentModalOpen] = useState(false);
 
   useEffect(() => {
     fetchInvoices();
-    fetch('/api/customers').then(r => r.json()).then(setCustomers).catch(() => setCustomers([]));
-    fetch('/api/products').then(r => r.json()).then(setProducts).catch(() => setProducts([]));
+    fetch(`${API_BASE_URL}/api/customers`).then(r => r.json()).then(setCustomers).catch(() => setCustomers([]));
+    fetch(`${API_BASE_URL}/api/products`).then(r => r.json()).then(setProducts).catch(() => setProducts([]));
   }, []);
 
   useEffect(() => {
@@ -66,7 +68,7 @@ const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const fetchInvoices = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/invoices');
+      const res = await fetch(`${API_BASE_URL}/api/invoices`);
       const data = await res.json();
       setInvoices(data);
     } catch {
@@ -94,7 +96,7 @@ const [paymentModalOpen, setPaymentModalOpen] = useState(false);
     if (!window.confirm(`Delete invoice for ${invoice.customer?.name || ''}?`)) return;
     setLoading(true); setError('');
     try {
-      const res = await fetch(`/api/invoices/${invoice._id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE_URL}/api/invoices/${invoice._id}`, { method: 'DELETE' });
       if (!res.ok) {
         const errData = await res.json();
         setError(errData.error || 'Failed to delete invoice');
@@ -150,14 +152,14 @@ const handleCreateOrUpdateInvoice = async (e) => {
     
     let res;
     if (editingInvoice) {
-      res = await fetch(`/api/invoices/${editingInvoice._id}`, {
+      res = await fetch(`${API_BASE_URL}/api/invoices/${editingInvoice._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
     } else {
       console.log('Creating new invoice with payload:', payload);
-      res = await fetch('/api/invoices/', {
+      res = await fetch(`${API_BASE_URL}/api/invoices/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -210,7 +212,7 @@ const handlePayment = async (e) => {
   
   try {
     console.log('Sending payment request...');
-    const res = await fetch(`/api/invoices/${selectedInvoice._id}/payments`, {
+    const res = await fetch(`${API_BASE_URL}/api/invoices/${selectedInvoice._id}/payments`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
@@ -228,7 +230,7 @@ const handlePayment = async (e) => {
       setError(errData.error || 'Payment failed');
     } else {
       console.log('Payment successful, fetching updated invoice...');
-      const updated = await fetch(`/api/invoices/${selectedInvoice._id}`);
+      const updated = await fetch(`${API_BASE_URL}/api/invoices/${selectedInvoice._id}`);
       const updatedInvoice = await updated.json();
       console.log('Updated invoice:', updatedInvoice);
       
@@ -256,7 +258,7 @@ const handlePayment = async (e) => {
 
   useEffect(() => {
     if (routeInvoiceId) {
-      fetch(`/api/invoices/${routeInvoiceId}`)
+      fetch(`${API_BASE_URL}/api/invoices/${routeInvoiceId}`)
         .then(r => r.json())
         .then(inv => setSelectedInvoice(inv))
         .catch(() => setSelectedInvoice(null));

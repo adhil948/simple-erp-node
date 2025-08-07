@@ -4,6 +4,8 @@ import {
   Box, Paper, Typography, TextField, Select, MenuItem, Button, Table, TableHead, TableRow, TableCell, TableBody, Snackbar, TableContainer, InputLabel, FormControl
 } from '@mui/material';
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || '';
+
 export default function Sales() {
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
@@ -22,13 +24,13 @@ export default function Sales() {
   }, []);
 
   const loadCustomers = async () => {
-    const res = await fetch('/api/customers');
+    const res = await fetch(`${API_BASE_URL}/api/customers`);
     const data = await res.json();
     setCustomers(data);
   };
 
   const loadProducts = async () => {
-    const res = await fetch('/api/products');
+    const res = await fetch(`${API_BASE_URL}/api/products`);
     const data = await res.json();
     setProducts(data);
     const map = {};
@@ -37,7 +39,7 @@ export default function Sales() {
   };
 
 const loadSales = async () => {
-  const res = await fetch('/api/sales');
+  const res = await fetch(`${API_BASE_URL}/api/sales`);
   const data = await res.json();
   data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort descending
   setSales(data);
@@ -126,7 +128,7 @@ const loadSales = async () => {
       totalAmount: items.reduce((sum, i) => sum + i.price * i.quantity, 0),
       status: form.status
     };
-    const res = await fetch('/api/sales', {
+    const res = await fetch(`${API_BASE_URL}/api/sales`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(sale)
@@ -143,7 +145,7 @@ const loadSales = async () => {
 
   const handleDelete = async id => {
     if (!window.confirm('Delete this sale?')) return;
-    const res = await fetch(`/api/sales/${id}`, { method: 'DELETE' });
+    const res = await fetch(`${API_BASE_URL}/api/sales/${id}`, { method: 'DELETE' });
     if (res.ok) {
       setSnackbar({ open: true, message: 'Sale deleted', severity: 'success' });
       loadSales();
@@ -153,7 +155,7 @@ const loadSales = async () => {
   };
 
   const handleEdit = async id => {
-    const saleres = await fetch(`/api/sales/${id}`);
+    const saleres = await fetch(`${API_BASE_URL}/api/sales/${id}`);
     const sale = await saleres.json();
     const newCustomer = prompt('Edit customer name:', sale.customerName);
     const newProduct = prompt('Edit product name:', sale.items[0]?.productName || '');
@@ -176,7 +178,7 @@ const loadSales = async () => {
       totalAmount: parseInt(newQty) * parseFloat(newPrice),
       status: newStatus
     };
-    const res = await fetch(`/api/sales/${id}`, {
+    const res = await fetch(`${API_BASE_URL}/api/sales/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updated)

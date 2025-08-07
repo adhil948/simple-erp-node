@@ -5,6 +5,8 @@ import {
   TableContainer, TableSortLabel, Box, Button, TextField, MenuItem, Select, InputLabel, FormControl, Typography
 } from '@mui/material';
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || '';
+
 function sortComparator(a, b, orderBy, order) {
   let valA = a[orderBy];
   let valB = b[orderBy];
@@ -36,7 +38,7 @@ export default function PaymentDashboard() {
   }, []);
 
   const fetchPayments = async () => {
-    const res = await fetch('/api/payments');
+    const res = await fetch(`${API_BASE_URL}/api/payments`);
     const data = await res.json();
     setPayments(data);
   };

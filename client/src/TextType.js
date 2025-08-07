@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, createElement } from "react";
 import { gsap } from "gsap";
 import "./TextType.css";
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || '';
+
 const TextType = ({
   text,
   as: Component = "div",

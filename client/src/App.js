@@ -39,6 +39,8 @@ import Badge from '@mui/material/Badge';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || '';
+
 const drawerWidth = 220;
 
 const navItems = [

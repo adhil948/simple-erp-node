@@ -5,6 +5,8 @@ import {
 } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || '';
+
 export default function Expenses() {
   const [expenses, setExpenses] = useState([]);
   const [form, setForm] = useState({ name: '', category: '', amount: '', date: '' });
@@ -40,7 +42,7 @@ export default function Expenses() {
   }
 
   const loadExpenses = async () => {
-    const res = await fetch('/api/expenses');
+    const res = await fetch(`${API_BASE_URL}/api/expenses`);
     const data = await res.json();
     setExpenses(data);
   };
@@ -59,7 +61,7 @@ export default function Expenses() {
       amount: parseFloat(form.amount),
       date: form.date
     };
-    const res = await fetch('/api/expenses', {
+    const res = await fetch(`${API_BASE_URL}/api/expenses`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(expense)
@@ -75,7 +77,7 @@ export default function Expenses() {
 
   const handleDelete = async id => {
     if (!window.confirm('Are you sure you want to delete this expense?')) return;
-    const res = await fetch(`/api/expenses/${id}`, { method: 'DELETE' });
+    const res = await fetch(`${API_BASE_URL}/api/expenses/${id}`, { method: 'DELETE' });
     if (res.ok) {
       setSnackbar({ open: true, message: 'Expense deleted!', severity: 'success' });
       loadExpenses();

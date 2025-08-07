@@ -11,6 +11,14 @@ import {
 import { Add, Remove } from '@mui/icons-material';
 import { useTheme } from '@mui/material';
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || '';
+
+// Remove these lines:
+console.log('All env vars:', process.env);
+console.log('Backend URL:', process.env.REACT_APP_BACKEND_URL);
+console.log('API Base URL:', API_BASE_URL);
+
+
 export default function CRM() {
   const location = useLocation(); // Add this
   
@@ -33,7 +41,7 @@ export default function CRM() {
   const loadCRM = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/customers');
+      const res = await fetch(`${API_BASE_URL}/api/customers`);
       const data = await res.json();
       setEntries(data);
     } catch {
@@ -101,7 +109,7 @@ export default function CRM() {
 
 
 const handleUpdate = async () => {
-  const res = await fetch(`/api/customers/${editForm._id}`, {
+  const res = await fetch(`${API_BASE_URL}/api/customers/${editForm._id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(editForm)
@@ -120,7 +128,7 @@ const handleUpdate = async () => {
   const handleSubmit = async e => {
     e.preventDefault();
     setSubmitting(true);
-    const res = await fetch('/api/customers', {
+    const res = await fetch(`${API_BASE_URL}/api/customers`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form)
@@ -141,7 +149,7 @@ const handleUpdate = async () => {
 
   const handleDelete = async id => {
     if (!window.confirm('Delete this entry?')) return;
-    const res = await fetch(`/api/customers/${id}`, { method: 'DELETE' });
+    const res = await fetch(`${API_BASE_URL}/api/customers/${id}`, { method: 'DELETE' });
     if (res.ok) {
       setSnackbar({ open: true, message: 'Deleted!', severity: 'success' });
       loadCRM();
@@ -151,7 +159,7 @@ const handleUpdate = async () => {
   };
 
 const handleEdit = async id => {
-  const res = await fetch(`/api/customers/${id}`);
+  const res = await fetch(`${API_BASE_URL}/api/customers/${id}`);
   const item = await res.json();
   setEditForm(item);
   setEditDialogOpen(true);

@@ -5,6 +5,8 @@ import {
   FormControl, Select, MenuItem, Button
 } from '@mui/material';
 
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || '';
+
 export default function Reports() {
   const [summary, setSummary] = useState(null);
   const [topProducts, setTopProducts] = useState([]);
@@ -19,7 +21,7 @@ export default function Reports() {
   useEffect(() => {
     async function loadProducts() {
       try {
-        const res = await fetch('/api/products');
+        const res = await fetch(`${API_BASE_URL}/api/products`);
         const data = await res.json();
         setProducts(data || []);
       } catch (e) {}
@@ -30,7 +32,7 @@ export default function Reports() {
   useEffect(() => {
     async function loadReport() {
       try {
-        const res = await fetch('/api/reports/summary');
+        const res = await fetch(`${API_BASE_URL}/api/reports/summary`);
         const data = await res.json();
         setSummary(data);
         setTopProducts(data.topProducts || []);
@@ -72,7 +74,7 @@ export default function Reports() {
     if (!chartRef.current || !window.Chart) return;
     try {
       const query = buildSalesQuery();
-      const res = await fetch('/api/reports/sales-daily' + query);
+      const res = await fetch(`${API_BASE_URL}/api/reports/sales-daily` + query);
       const data = await res.json();
       const labels = data.map(d => d.date);
       const totals = data.map(d => d.total);
