@@ -23,6 +23,7 @@ export default function Invoices() {
   const [createError, setCreateError] = useState('');
   // Add this state to your main Invoices component
 const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+ const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
 
   // const [discount, setDiscount] = useState(0);
 
@@ -119,58 +120,64 @@ const [paymentModalOpen, setPaymentModalOpen] = useState(false);
     setCreateError(''); setEditingInvoice(null); setShowCreate(false);
   };
 
-  const handleCreateOrUpdateInvoice = async (e) => {
-    e.preventDefault();
-    setCreateError('');
-    if (!newInvoice.customer || newInvoice.items.some(item => !item.product || !item.quantity || !item.price)) {
-      setCreateError('Please fill all fields');
-      return;
-    }
-    setLoading(true);
-    try {
-      const payload = {
-        customer: newInvoice.customer,
-        items: newInvoice.items.map(item => ({
-          product: item.product,
-          quantity: Number(item.quantity),
-          price: Number(item.price)
-        })),
-        dueDate: newInvoice.dueDate,
-        discount: Number(newInvoice.discount) || 0 
-      };
+const handleCreateOrUpdateInvoice = async (e) => {
+  e.preventDefault();
+  setCreateError('');
+  if (!newInvoice.customer || newInvoice.items.some(item => !item.product || !item.quantity || !item.price)) {
+    setCreateError('Please fill all fields');
+    return;
+  }
+  setLoading(true);
+  try {
+    const payload = {
+      customer: newInvoice.customer,
+      items: newInvoice.items.map(item => ({
+        product: item.product,
+        quantity: Number(item.quantity),
+        price: Number(item.price)
+      })),
+      dueDate: newInvoice.dueDate,
+      discount: Number(newInvoice.discount) || 0,
+      // ADD THIS LINE - Include payment schedule in payload
+      paymentSchedule: newInvoice.paymentSchedule || []
+    };
 
-        console.log('Payload being sent:', payload);
-  console.log('newInvoice.discount:', newInvoice.discount);
-      if(newInvoice.saleId) payload.saleId = newInvoice.saleId;
-      let res;
-      if (editingInvoice) {
-        res = await fetch(`/api/invoices/${editingInvoice._id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-      } else {
-        console.log('Creating new invoice with payload:', payload);
-        res = await fetch('/api/invoices/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-      }
-      if (!res.ok) {
-        const errData = await res.json();
-        setCreateError(errData.error || `Failed to ${editingInvoice ? 'update' : 'create'} invoice`);
-      } else {
-        const createdInvoice = await res.json();
-        resetForm(); 
-        setSelectedInvoice(createdInvoice);
-        fetchInvoices();
-      }
-    } catch {
-      setCreateError(`Failed to ${editingInvoice ? 'update' : 'create'} invoice`);
+    console.log('Payload being sent:', payload);
+    console.log('newInvoice.discount:', newInvoice.discount);
+    console.log('paymentSchedule being sent:', payload.paymentSchedule); // Add this debug log
+
+    if(newInvoice.saleId) payload.saleId = newInvoice.saleId;
+    
+    let res;
+    if (editingInvoice) {
+      res = await fetch(`/api/invoices/${editingInvoice._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } else {
+      console.log('Creating new invoice with payload:', payload);
+      res = await fetch('/api/invoices/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
     }
-    setLoading(false);
-  };
+    
+    if (!res.ok) {
+      const errData = await res.json();
+      setCreateError(errData.error || `Failed to ${editingInvoice ? 'update' : 'create'} invoice`);
+    } else {
+      const createdInvoice = await res.json();
+      resetForm(); 
+      setSelectedInvoice(createdInvoice);
+      fetchInvoices();
+    }
+  } catch {
+    setCreateError(`Failed to ${editingInvoice ? 'update' : 'create'} invoice`);
+  }
+  setLoading(false);
+};
 
   const selectInvoice = (invoice) => {
     setSelectedInvoice(invoice);
@@ -178,35 +185,66 @@ const [paymentModalOpen, setPaymentModalOpen] = useState(false);
     setPaymentNote(''); setEditingInvoice(null); setShowCreate(false);
   };
 
-  const handlePayment = async (e) => {
-    e.preventDefault();
-    if (!paymentAmount) return;
-    setLoading(true);
-    setError('');
-    try {
-      const res = await fetch(`/api/invoices/${selectedInvoice._id}/payments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: Number(paymentAmount), method: paymentMethod, note: paymentNote })
-      });
-      if (!res.ok) {
-        const errData = await res.json();
-        setError(errData.error || 'Payment failed');
-      } else {
-        const updated = await fetch(`/api/invoices/${selectedInvoice._id}`);
-        const updatedInvoice = await updated.json();
-        setSelectedInvoice(updatedInvoice);
+const handlePayment = async (e) => {
+  e.preventDefault();
+  console.log('handlePayment called with:', {
+    paymentAmount,
+    paymentMethod,
+    paymentNote,
+    selectedInvoiceId: selectedInvoice?._id
+  });
 
-             setPaymentAmount('');
+  if (!paymentAmount) {
+    console.log('No payment amount provided');
+    return;
+  }
+
+  if (!selectedInvoice?._id) {
+    console.log('No selected invoice ID');
+    setError('No invoice selected');
+    return;
+  }
+
+  setLoading(true);
+  setError('');
+  
+  try {
+    console.log('Sending payment request...');
+    const res = await fetch(`/api/invoices/${selectedInvoice._id}/payments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        amount: Number(paymentAmount), 
+        method: paymentMethod, 
+        note: paymentNote 
+      })
+    });
+
+    console.log('Payment response status:', res.status);
+
+    if (!res.ok) {
+      const errData = await res.json();
+      console.log('Payment error response:', errData);
+      setError(errData.error || 'Payment failed');
+    } else {
+      console.log('Payment successful, fetching updated invoice...');
+      const updated = await fetch(`/api/invoices/${selectedInvoice._id}`);
+      const updatedInvoice = await updated.json();
+      console.log('Updated invoice:', updatedInvoice);
+      
+      setSelectedInvoice(updatedInvoice);
+      setPaymentAmount('');
       setPaymentMethod('cash');
       setPaymentNote('');
-        fetchInvoices();
-      }
-    } catch {
-      setError('Payment failed');
+      fetchInvoices();
     }
-    setLoading(false);
-  };
+  } catch (err) {
+    console.error('Payment error:', err);
+    setError('Payment failed');
+  }
+  setLoading(false);
+};
+
 
   // Print handler
   const handlePrint = () => {
@@ -243,6 +281,8 @@ const [paymentModalOpen, setPaymentModalOpen] = useState(false);
         setPaymentNote={setPaymentNote}
               paymentModalOpen={paymentModalOpen}
       setPaymentModalOpen={setPaymentModalOpen}
+        setScheduleModalOpen={setScheduleModalOpen}
+        scheduleModalOpen={scheduleModalOpen}
         // discount={discount}
         // setDiscount={setDiscount}
       />
