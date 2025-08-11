@@ -5,6 +5,7 @@ const Sale = require("../models/Sale");
 const Product = require("../models/Product");
 const Customer = require("../models/Customer");
 const Payment = require('../models/Payment');
+const Invoice = require ('../models/Invoice')
 
 // GET /api/reports/summary
 router.get("/summary", async (req, res) => {
@@ -34,12 +35,15 @@ router.get("/summary", async (req, res) => {
       { $project: { productName: "$_id", totalQty: 1, _id: 0 } }
     ]);
 
+    const totalInvoices = await Invoice.countDocuments();
+
     res.json({
       totalSales,
       totalCustomers,
       totalProducts,
       totalInventoryValue,
       topProducts
+      , totalInvoices
     });
   } catch (err) {
     console.error(err);

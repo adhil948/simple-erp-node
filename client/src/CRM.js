@@ -1,26 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom'; // Add this import
+import { useLocation } from 'react-router-dom';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
 
 import {
   Box, Paper, Typography, TextField, Select, MenuItem, Button, Table, TableHead, TableRow, TableCell,
-  TableBody, Snackbar, TableContainer, InputLabel, FormControl, Collapse, CircularProgress
+  TableBody, Snackbar, TableContainer, InputLabel, FormControl, Collapse, CircularProgress,
+  Card, CardContent, Grid, Chip, IconButton, Tooltip, Divider, Alert
 } from '@mui/material';
-import { Add, Remove } from '@mui/icons-material';
+import { 
+  Add, Remove, Edit, Delete, Person, Email, Phone, Business, 
+  LocationOn, Description, Visibility, AddCircleOutline 
+} from '@mui/icons-material';
 import { useTheme } from '@mui/material';
 
 const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || '';
 
-// Remove these lines:
-console.log('All env vars:', process.env);
-console.log('Backend URL:', process.env.REACT_APP_BACKEND_URL);
-console.log('API Base URL:', API_BASE_URL);
-
-
 export default function CRM() {
-  const location = useLocation(); // Add this
+  const location = useLocation();
   
   const [entries, setEntries] = useState([]);
   const [form, setForm] = useState({
@@ -54,13 +52,10 @@ export default function CRM() {
     loadCRM(); 
   }, []);
 
-  // Add this useEffect to handle navigation state
   useEffect(() => {
-    // Check if we were navigated here with showForm state
     if (location.state?.showForm) {
       setShowForm(true);
       
-      // Optional: Show a message indicating we came from sales
       if (location.state?.fromPage === 'sales') {
         setSnackbar({ 
           open: true, 
@@ -69,7 +64,6 @@ export default function CRM() {
         });
       }
       
-      // Clear the state from browser history
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
@@ -92,36 +86,42 @@ export default function CRM() {
   };
 
   const handleEditChange = (e) => {
-  const { name, id, value } = e.target;
-  if (name?.startsWith('address.')) {
-    const field = name.split('.')[1];
-    setEditForm(prev => ({
-      ...prev,
-      address: { ...prev.address, [field]: value }
-    }));
-  } else {
-    setEditForm(prev => ({
-      ...prev,
-      [id || name]: value
-    }));
-  }
-};
+    const { name, id, value } = e.target;
+    if (name?.startsWith('address.')) {
+      const field = name.split('.')[1];
+      setEditForm(prev => ({
+        ...prev,
+        address: { ...prev.address, [field]: value }
+      }));
+    } else {
+      setEditForm(prev => ({
+        ...prev,
+        [id || name]: value
+      }));
+    }
+  };
 
+  const handleUpdate = async () => {
+    const res = await fetch(`${API_BASE_URL}/api/customers/${editForm._id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(editForm)
+    });
+    if (res.ok) {
+      setSnackbar({ open: true, message: 'Updated successfully!', severity: 'success' });
+      setEditDialogOpen(false);
+      setEditForm(null);
+      loadCRM();
+    } else {
+      setSnackbar({ open: true, message: 'Error updating.', severity: 'error' });
+    }
+  };
 
-const handleUpdate = async () => {
-  const res = await fetch(`${API_BASE_URL}/api/customers/${editForm._id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(editForm)
-  });
-  if (res.ok) {
-    setSnackbar({ open: true, message: 'Updated successfully!', severity: 'success' });
-    setEditDialogOpen(false);
-    setEditForm(null);
-    loadCRM();
-  } else {
-    setSnackbar({ open: true, message: 'Error updating.', severity: 'error' });
-  }
+  const fieldStyle = {
+  "& .MuiOutlinedInput-root": {
+    borderRadius: 2,
+    background: isDarkMode ? "#1a1a1a" : "#fafafa",
+  },
 };
 
 
@@ -158,154 +158,930 @@ const handleUpdate = async () => {
     }
   };
 
-const handleEdit = async id => {
-  const res = await fetch(`${API_BASE_URL}/api/customers/${id}`);
-  const item = await res.json();
-  setEditForm(item);
-  setEditDialogOpen(true);
-};
+  const handleEdit = async id => {
+    const res = await fetch(`${API_BASE_URL}/api/customers/${id}`);
+    const item = await res.json();
+    setEditForm(item);
+    setEditDialogOpen(true);
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'Lead': return 'default';
+      case 'Contacted': return 'primary';
+      case 'Customer': return 'success';
+      default: return 'default';
+    }
+  };
 
   return (
-    <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <h1><strong>CRM MODULE</strong></h1>
-      <Paper sx={{ p: 3, mb: 3, width: '100%', maxWidth: 1000 }} elevation={3}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Button
-            variant="contained"
-            color={showForm ? 'secondary' : 'primary'}
-            onClick={() => setShowForm(prev => !prev)}
-            startIcon={showForm ? <Remove /> : <Add />}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: isDarkMode ? "#0a0a0a" : "#fafafa",
+        py: 4,
+        px: 2,
+      }}
+    >
+      <Box sx={{ width: "100%" }}>
+        {/* Header */}
+        <Box sx={{ textAlign: "center", mb: 6 }}>
+          <Typography
+            variant="h3"
+            component="h1"
+            sx={{
+              fontWeight: 300,
+              color: isDarkMode ? "#ffffff" : "#1a1a1a",
+              mb: 1,
+              letterSpacing: "-0.02em",
+            }}
           >
-            {showForm ? 'Hide Form' : 'Add New lead'}
-          </Button>
+            Customer Relationship Management
+          </Typography>
+          <Typography
+            variant="h6"
+            color="text.secondary"
+            sx={{ fontWeight: 300, opacity: 0.7 }}
+          >
+            Manage your customer relationships and track leads
+          </Typography>
         </Box>
 
-        <Collapse in={showForm}>
-          <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 1600, mb: 3 }}>
-            <TextField label="Full Name" id="name" value={form.name} onChange={handleChange} required fullWidth />
-            <TextField label="Email" id="email" value={form.email} onChange={handleChange} type="email" fullWidth />
-            <TextField label="Phone" id="phone" value={form.phone} onChange={handleChange} fullWidth />
-            <TextField label="Company" id="company" value={form.company} onChange={handleChange} fullWidth />
-            <TextField label="GSTIN" id="gstIN" value={form.gstIN} onChange={handleChange} fullWidth />
-            <TextField label="Street" name="address.street" value={form.address.street} onChange={handleChange} fullWidth />
-            <TextField label="City" name="address.city" value={form.address.city} onChange={handleChange} fullWidth />
-            <TextField label="State" name="address.state" value={form.address.state} onChange={handleChange} fullWidth />
-            <TextField label="ZIP Code" name="address.zip" value={form.address.zip} onChange={handleChange} fullWidth />
-            <TextField label="Country" name="address.country" value={form.address.country} onChange={handleChange} fullWidth />
-            <FormControl fullWidth>
-              <InputLabel id="status-label">Status</InputLabel>
-              <Select
-                labelId="status-label"
-                id="status"
-                name="status"
-                value={form.status}
-                label="Status"
-                onChange={handleChange}
+        {/* Stats Cards */}
+        <Grid
+          container
+          spacing={3}
+          sx={{
+            mb: 6,
+            justifyContent: "center",
+            maxWidth: "1200px",
+            margin: "0 auto 48px auto", // Centers horizontally with bottom margin
+          }}
+        >
+          <Grid item xs={12} sm={6} md={3}>
+            <Card
+              sx={{
+                background: isDarkMode ? "#1a1a1a" : "#ffffff",
+                borderRadius: 2,
+                boxShadow: isDarkMode
+                  ? "0 2px 8px rgba(0,0,0,0.3)"
+                  : "0 2px 8px rgba(0,0,0,0.08)",
+                border: isDarkMode ? "1px solid #333" : "1px solid #e0e0e0",
+              }}
+            >
+              <CardContent sx={{ textAlign: "center", py: 3 }}>
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontWeight: 300,
+                    color: isDarkMode ? "#ffffff" : "#1a1a1a",
+                    mb: 1,
+                  }}
+                >
+                  {entries.length}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "text.secondary", fontWeight: 400 }}
+                >
+                  Total Contacts
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card
+              sx={{
+                background: isDarkMode ? "#1a1a1a" : "#ffffff",
+                borderRadius: 2,
+                boxShadow: isDarkMode
+                  ? "0 2px 8px rgba(0,0,0,0.3)"
+                  : "0 2px 8px rgba(0,0,0,0.08)",
+                border: isDarkMode ? "1px solid #333" : "1px solid #e0e0e0",
+              }}
+            >
+              <CardContent sx={{ textAlign: "center", py: 3 }}>
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontWeight: 300,
+                    color: isDarkMode ? "#ffffff" : "#1a1a1a",
+                    mb: 1,
+                  }}
+                >
+                  {entries.filter((e) => e.status === "Lead").length}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "text.secondary", fontWeight: 400 }}
+                >
+                  Active Leads
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card
+              sx={{
+                background: isDarkMode ? "#1a1a1a" : "#ffffff",
+                borderRadius: 2,
+                boxShadow: isDarkMode
+                  ? "0 2px 8px rgba(0,0,0,0.3)"
+                  : "0 2px 8px rgba(0,0,0,0.08)",
+                border: isDarkMode ? "1px solid #333" : "1px solid #e0e0e0",
+              }}
+            >
+              <CardContent sx={{ textAlign: "center", py: 3 }}>
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontWeight: 300,
+                    color: isDarkMode ? "#ffffff" : "#1a1a1a",
+                    mb: 1,
+                  }}
+                >
+                  {entries.filter((e) => e.status === "Contacted").length}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "text.secondary", fontWeight: 400 }}
+                >
+                  Contacted
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card
+              sx={{
+                background: isDarkMode ? "#1a1a1a" : "#ffffff",
+                borderRadius: 2,
+                boxShadow: isDarkMode
+                  ? "0 2px 8px rgba(0,0,0,0.3)"
+                  : "0 2px 8px rgba(0,0,0,0.08)",
+                border: isDarkMode ? "1px solid #333" : "1px solid #e0e0e0",
+              }}
+            >
+              <CardContent sx={{ textAlign: "center", py: 3 }}>
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontWeight: 300,
+                    color: isDarkMode ? "#ffffff" : "#1a1a1a",
+                    mb: 1,
+                  }}
+                >
+                  {entries.filter((e) => e.status === "Customer").length}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "text.secondary", fontWeight: 400 }}
+                >
+                  Customers
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* Main Content */}
+        <Card
+          sx={{
+            borderRadius: 2,
+            boxShadow: isDarkMode
+              ? "0 2px 8px rgba(0,0,0,0.3)"
+              : "0 2px 8px rgba(0,0,0,0.08)",
+            border: isDarkMode ? "1px solid #333" : "1px solid #e0e0e0",
+            overflow: "hidden",
+          }}
+        >
+          <CardContent sx={{ p: 0 }}>
+            {/* Form Toggle Button */}
+            <Box
+              sx={{
+                p: 3,
+                background: isDarkMode ? "#1a1a1a" : "#fafafa",
+                borderBottom: `1px solid ${isDarkMode ? "#333" : "#e0e0e0"}`,
+              }}
+            >
+              <Button
+                variant="outlined"
+                size="large"
+                onClick={() => setShowForm((prev) => !prev)}
+                startIcon={showForm ? <Remove /> : <Add />}
+                sx={{
+                  borderRadius: 2,
+                  px: 4,
+                  py: 1.5,
+                  textTransform: "none",
+                  fontWeight: 400,
+                  borderColor: isDarkMode ? "#555" : "#ccc",
+                  color: isDarkMode ? "#ffffff" : "#1a1a1a",
+                  "&:hover": {
+                    borderColor: isDarkMode ? "#777" : "#999",
+                    background: isDarkMode
+                      ? "rgba(255,255,255,0.05)"
+                      : "rgba(0,0,0,0.02)",
+                  },
+                }}
               >
-                <MenuItem value="Lead">Lead</MenuItem>
-                <MenuItem value="Contacted">Contacted</MenuItem>
-                <MenuItem value="Customer">Customer</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField label="Notes (optional)" id="notes" value={form.notes} onChange={handleChange} multiline rows={2} fullWidth />
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button type="submit" variant="contained" disabled={submitting}>
-                {submitting ? 'Submitting...' : 'Add CRM Entry'}
+                {showForm ? "Hide Form" : "Add New Contact"}
               </Button>
             </Box>
-          </Box>
-        </Collapse>
 
-        <Typography variant="h6" gutterBottom>All CRM Entries</Typography>
-        {loading ? (
-          <Box sx={{ textAlign: 'center', mt: 3 }}>
-            <CircularProgress />
-            <Typography>Loading CRM data...</Typography>
-          </Box>
-        ) : (
-          <TableContainer component={Paper} sx={{ mt: 3 }}>
-            <Table id="crmTable">
-              <TableHead>
-                <TableRow sx={{ bgcolor: isDarkMode ? '#1e1e1e' : '#f0f0f0' }}>
-                  {['Name', 'Email', 'Phone', 'Company', 'GSTIN', 'Address', 'Status', 'Notes', 'Actions'].map((heading) => (
-                    <TableCell key={heading} sx={{ color: isDarkMode ? '#ffffff' : '#000000', fontWeight: 'bold' }}>
-                      {heading}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {entries.map(item => (
-                  <TableRow key={item._id}>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.email || '-'}</TableCell>
-                    <TableCell>{item.phone || '-'}</TableCell>
-                    <TableCell>{item.company || '-'}</TableCell>
-                    <TableCell>{item.gstIN || '-'}</TableCell>
-                    <TableCell>
-                      {[item.address?.street, item.address?.city, item.address?.state, item.address?.zip, item.address?.country]
-                        .filter(Boolean).join(', ') || '-'}
-                    </TableCell>
-                    <TableCell>{item.status}</TableCell>
-                    <TableCell>{item.notes || '-'}</TableCell>
-                    <TableCell>
-                      <Button size="small" variant="outlined" onClick={() => handleEdit(item._id)} sx={{ mr: 1 }}>Edit</Button>
-                      <Button size="small" variant="outlined" color="error" onClick={() => handleDelete(item._id)}>Delete</Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-      </Paper>
+            {/* Add Form */}
+            <Collapse in={showForm}>
+              <Box
+                sx={{ p: 4, background: isDarkMode ? "#0f0f0f" : "#ffffff" }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{
+                    mb: 3,
+                    fontWeight: 400,
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <AddCircleOutline sx={{ mr: 1, opacity: 0.7 }} />
+                  Add New Contact
+                </Typography>
+                  
+<Box component="form" onSubmit={handleSubmit}>
+  <Grid container spacing={10}>
+    {/* Personal Information */}
+    <Grid item xs={12}>
+      <Typography variant="h6" sx={{ fontWeight: 500, mb: 1 }}>
+        Personal Information
+      </Typography>
+    </Grid>
+    <Grid item xs={12} md={4}>
+      <TextField label="Full Name" id="name" value={form.name} onChange={handleChange} required fullWidth InputProps={{ startAdornment: (<Person sx={{ mr: 1, color: "text.secondary" }} />) }} sx={fieldStyle} />
+    </Grid>
+    <Grid item xs={12} md={4}>
+      <TextField label="Email" id="email" value={form.email} onChange={handleChange} type="email" fullWidth InputProps={{ startAdornment: (<Email sx={{ mr: 1, color: "text.secondary" }} />) }} sx={fieldStyle} />
+    </Grid>
+    <Grid item xs={12} md={4}>
+      <TextField label="Phone" id="phone" value={form.phone} onChange={handleChange} fullWidth InputProps={{ startAdornment: (<Phone sx={{ mr: 1, color: "text.secondary" }} />) }} sx={fieldStyle} />
+    </Grid>
 
-      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="sm" fullWidth>
-  <DialogTitle>Edit CRM Entry</DialogTitle>
-  <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-    {editForm && (
-      <>
-        <TextField label="Name" id="name" value={editForm.name} onChange={handleEditChange} fullWidth />
-        <TextField label="Email" id="email" value={editForm.email} onChange={handleEditChange} fullWidth />
-        <TextField label="Phone" id="phone" value={editForm.phone} onChange={handleEditChange} fullWidth />
-        <TextField label="Company" id="company" value={editForm.company} onChange={handleEditChange} fullWidth />
-        <TextField label="GSTIN" id="gstIN" value={editForm.gstIN} onChange={handleEditChange} fullWidth />
-        <TextField label="Street" name="address.street" value={editForm.address?.street || ''} onChange={handleEditChange} fullWidth />
-        <TextField label="City" name="address.city" value={editForm.address?.city || ''} onChange={handleEditChange} fullWidth />
-        <TextField label="State" name="address.state" value={editForm.address?.state || ''} onChange={handleEditChange} fullWidth />
-        <TextField label="ZIP Code" name="address.zip" value={editForm.address?.zip || ''} onChange={handleEditChange} fullWidth />
-        <TextField label="Country" name="address.country" value={editForm.address?.country || ''} onChange={handleEditChange} fullWidth />
-        <FormControl fullWidth>
-          <InputLabel>Status</InputLabel>
-          <Select
-            id="status"
-            name="status"
-            value={editForm.status}
-            label="Status"
-            onChange={handleEditChange}
+
+
+    {/* Business Information */}
+    <Grid item xs={12}>
+      <Typography variant="h6" sx={{ fontWeight: 500, mt: 2, mb: 1 }}>
+        Business Information
+      </Typography>
+    </Grid>
+    <Grid item xs={12} md={4}>
+      <TextField label="Company" id="company" value={form.company} onChange={handleChange} fullWidth InputProps={{ startAdornment: (<Business sx={{ mr: 1, color: "text.secondary" }} />) }} sx={fieldStyle} />
+    </Grid>
+    <Grid item xs={12} md={4}>
+      <TextField label="GSTIN" id="gstIN" value={form.gstIN} onChange={handleChange} fullWidth sx={fieldStyle} />
+    </Grid>
+    <Grid item xs={12} md={4}>
+      <FormControl fullWidth sx={fieldStyle}>
+        <InputLabel>Status</InputLabel>
+        <Select id="status" name="status" value={form.status} onChange={handleChange}>
+          <MenuItem value="Lead">Lead</MenuItem>
+          <MenuItem value="Contacted">Contacted</MenuItem>
+          <MenuItem value="Customer">Customer</MenuItem>
+        </Select>
+      </FormControl>
+    </Grid>
+    
+
+    {/* Address */}
+    <Grid item xs={12}>
+      <Typography variant="h6" sx={{ fontWeight: 500, mt: 2, mb: 1 }}>
+        <LocationOn sx={{ mr: 1, fontSize: 20 }} /> Address
+      </Typography>
+    </Grid>
+    <Grid item xs={12} md={6}>
+      <TextField label="Street" name="address.street" value={form.address.street} onChange={handleChange} fullWidth sx={fieldStyle} />
+    </Grid>
+    <Grid item xs={12} md={6}>
+      <TextField label="City" name="address.city" value={form.address.city} onChange={handleChange} fullWidth sx={fieldStyle} />
+    </Grid>
+    <Grid item xs={12} md={4}>
+      <TextField label="State" name="address.state" value={form.address.state} onChange={handleChange} fullWidth sx={fieldStyle} />
+    </Grid>
+    <Grid item xs={12} md={4}>
+      <TextField label="ZIP Code" name="address.zip" value={form.address.zip} onChange={handleChange} fullWidth sx={fieldStyle} />
+    </Grid>
+    <Grid item xs={12} md={4}>
+      <TextField label="Country" name="address.country" value={form.address.country} onChange={handleChange} fullWidth sx={fieldStyle} />
+    </Grid>
+
+    {/* Notes */}
+    <Grid item xs={12}>
+      <TextField label="Notes (optional)" id="notes" value={form.notes} onChange={handleChange} multiline rows={3} fullWidth InputProps={{ startAdornment: (<Description sx={{ mr: 1, color: "text.secondary", alignSelf: "flex-start", mt: 1 }} />) }} sx={fieldStyle} />
+    </Grid>
+
+    {/* Buttons */}
+    <Grid item xs={12}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}>
+        <Button variant="outlined" onClick={() => setShowForm(false)}>Cancel</Button>
+        <Button type="submit" variant="contained" disabled={submitting}>
+          {submitting ? "Adding..." : "Add Contact"}
+        </Button>
+      </Box>
+    </Grid>
+  </Grid>
+</Box>
+
+
+
+              </Box>
+            </Collapse>
+
+            <Divider />
+
+            {/* Data Table */}
+            <Box sx={{ p: 3 }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  mb: 3,
+                  fontWeight: 400,
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <Visibility sx={{ mr: 1, opacity: 0.7 }} />
+                All Contacts ({entries.length})
+              </Typography>
+
+              {loading ? (
+                <Box sx={{ textAlign: "center", py: 4 }}>
+                  <CircularProgress size={60} />
+                  <Typography sx={{ mt: 2, color: "text.secondary" }}>
+                    Loading CRM data...
+                  </Typography>
+                </Box>
+              ) : entries.length === 0 ? (
+                <Box sx={{ textAlign: "center", py: 6 }}>
+                  <Typography
+                    variant="h6"
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
+                  >
+                    No contacts found
+                  </Typography>
+                  <Typography color="text.secondary">
+                    Start by adding your first contact using the form above.
+                  </Typography>
+                </Box>
+              ) : (
+                <TableContainer sx={{ borderRadius: 2, overflow: "hidden" }}>
+                  <Table>
+                    <TableHead>
+                      <TableRow
+                        sx={{
+                          background: isDarkMode ? "#1a1a1a" : "#fafafa",
+                        }}
+                      >
+                        {[
+                          "Name",
+                          "Contact",
+                          "Company",
+                          "Address",
+                          "Status",
+                          "Notes",
+                          "Actions",
+                        ].map((heading) => (
+                          <TableCell
+                            key={heading}
+                            sx={{
+                              color: isDarkMode ? "#ffffff" : "#1a1a1a",
+                              fontWeight: 500,
+                              borderBottom: "none",
+                              fontSize: "0.875rem",
+                            }}
+                          >
+                            {heading}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {entries.map((item, index) => (
+                        <TableRow
+                          key={item._id}
+                          sx={{
+                            "&:hover": {
+                              background: isDarkMode
+                                ? "rgba(255,255,255,0.02)"
+                                : "rgba(0,0,0,0.02)",
+                            },
+                            "&:nth-of-type(even)": {
+                              background: isDarkMode
+                                ? "rgba(255,255,255,0.01)"
+                                : "rgba(0,0,0,0.01)",
+                            },
+                          }}
+                        >
+                          <TableCell sx={{ fontWeight: 500 }}>
+                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                              <Person
+                                sx={{
+                                  mr: 1,
+                                  color: "text.secondary",
+                                  opacity: 0.7,
+                                }}
+                              />
+                              {item.name}
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <Box>
+                              {item.email && (
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    mb: 0.5,
+                                  }}
+                                >
+                                  <Email
+                                    sx={{
+                                      mr: 1,
+                                      fontSize: "small",
+                                      color: "text.secondary",
+                                      opacity: 0.7,
+                                    }}
+                                  />
+                                  <Typography variant="body2">
+                                    {item.email}
+                                  </Typography>
+                                </Box>
+                              )}
+                              {item.phone && (
+                                <Box
+                                  sx={{ display: "flex", alignItems: "center" }}
+                                >
+                                  <Phone
+                                    sx={{
+                                      mr: 1,
+                                      fontSize: "small",
+                                      color: "text.secondary",
+                                      opacity: 0.7,
+                                    }}
+                                  />
+                                  <Typography variant="body2">
+                                    {item.phone}
+                                  </Typography>
+                                </Box>
+                              )}
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            {item.company ? (
+                              <Box
+                                sx={{ display: "flex", alignItems: "center" }}
+                              >
+                                <Business
+                                  sx={{
+                                    mr: 1,
+                                    fontSize: "small",
+                                    color: "text.secondary",
+                                    opacity: 0.7,
+                                  }}
+                                />
+                                {item.company}
+                              </Box>
+                            ) : (
+                              "-"
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {item.address?.street || item.address?.city ? (
+                              <Box
+                                sx={{ display: "flex", alignItems: "center" }}
+                              >
+                                <LocationOn
+                                  sx={{
+                                    mr: 1,
+                                    fontSize: "small",
+                                    color: "text.secondary",
+                                    opacity: 0.7,
+                                  }}
+                                />
+                                <Typography variant="body2">
+                                  {[
+                                    item.address?.street,
+                                    item.address?.city,
+                                    item.address?.state,
+                                  ]
+                                    .filter(Boolean)
+                                    .join(", ") || "-"}
+                                </Typography>
+                              </Box>
+                            ) : (
+                              "-"
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={item.status}
+                              color={getStatusColor(item.status)}
+                              size="small"
+                              sx={{
+                                fontWeight: 400,
+                                background: isDarkMode ? "#333" : "#f0f0f0",
+                                color: isDarkMode ? "#ffffff" : "#1a1a1a",
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            {item.notes ? (
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  maxWidth: 150,
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                {item.notes}
+                              </Typography>
+                            ) : (
+                              "-"
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={{ display: "flex", gap: 1 }}>
+                              <Tooltip title="Edit Contact">
+                                <IconButton
+                                  size="small"
+                                  onClick={() => handleEdit(item._id)}
+                                  sx={{
+                                    color: "text.secondary",
+                                    "&:hover": {
+                                      background: isDarkMode
+                                        ? "rgba(255,255,255,0.05)"
+                                        : "rgba(0,0,0,0.05)",
+                                    },
+                                  }}
+                                >
+                                  <Edit />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Delete Contact">
+                                <IconButton
+                                  size="small"
+                                  onClick={() => handleDelete(item._id)}
+                                  sx={{
+                                    color: "text.secondary",
+                                    "&:hover": {
+                                      background: isDarkMode
+                                        ? "rgba(255,255,255,0.05)"
+                                        : "rgba(0,0,0,0.05)",
+                                    },
+                                  }}
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </Tooltip>
+                            </Box>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
+
+      {/* Edit Dialog */}
+      <Dialog
+        open={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            background: isDarkMode ? "#1a1a1a" : "#ffffff",
+            border: isDarkMode ? "1px solid #333" : "1px solid #e0e0e0",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            background: isDarkMode ? "#0f0f0f" : "#fafafa",
+            color: isDarkMode ? "#ffffff" : "#1a1a1a",
+            fontWeight: 400,
+            borderBottom: `1px solid ${isDarkMode ? "#333" : "#e0e0e0"}`,
+          }}
+        >
+          Edit Contact
+        </DialogTitle>
+        <DialogContent sx={{ p: 3 }}>
+          {editForm && (
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Name"
+                  id="name"
+                  value={editForm.name}
+                  onChange={handleEditChange}
+                  fullWidth
+                  InputProps={{
+                    startAdornment: (
+                      <Person
+                        sx={{ mr: 1, color: "text.secondary", opacity: 0.7 }}
+                      />
+                    ),
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      background: isDarkMode ? "#1a1a1a" : "#fafafa",
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Email"
+                  id="email"
+                  value={editForm.email}
+                  onChange={handleEditChange}
+                  fullWidth
+                  InputProps={{
+                    startAdornment: (
+                      <Email
+                        sx={{ mr: 1, color: "text.secondary", opacity: 0.7 }}
+                      />
+                    ),
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      background: isDarkMode ? "#1a1a1a" : "#fafafa",
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Phone"
+                  id="phone"
+                  value={editForm.phone}
+                  onChange={handleEditChange}
+                  fullWidth
+                  InputProps={{
+                    startAdornment: (
+                      <Phone
+                        sx={{ mr: 1, color: "text.secondary", opacity: 0.7 }}
+                      />
+                    ),
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      background: isDarkMode ? "#1a1a1a" : "#fafafa",
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Company"
+                  id="company"
+                  value={editForm.company}
+                  onChange={handleEditChange}
+                  fullWidth
+                  InputProps={{
+                    startAdornment: (
+                      <Business
+                        sx={{ mr: 1, color: "text.secondary", opacity: 0.7 }}
+                      />
+                    ),
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      background: isDarkMode ? "#1a1a1a" : "#fafafa",
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="GSTIN"
+                  id="gstIN"
+                  value={editForm.gstIN}
+                  onChange={handleEditChange}
+                  fullWidth
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      background: isDarkMode ? "#1a1a1a" : "#fafafa",
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    id="status"
+                    name="status"
+                    value={editForm.status}
+                    label="Status"
+                    onChange={handleEditChange}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: 2,
+                        background: isDarkMode ? "#1a1a1a" : "#fafafa",
+                      },
+                    }}
+                  >
+                    <MenuItem value="Lead">Lead</MenuItem>
+                    <MenuItem value="Contacted">Contacted</MenuItem>
+                    <MenuItem value="Customer">Customer</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    mb: 2,
+                    fontWeight: 400,
+                    display: "flex",
+                    alignItems: "center",
+                    opacity: 0.8,
+                  }}
+                >
+                  <LocationOn sx={{ mr: 1 }} />
+                  Address Information
+                </Typography>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="Street"
+                  name="address.street"
+                  value={editForm.address?.street || ""}
+                  onChange={handleEditChange}
+                  fullWidth
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      background: isDarkMode ? "#1a1a1a" : "#fafafa",
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  label="City"
+                  name="address.city"
+                  value={editForm.address?.city || ""}
+                  onChange={handleEditChange}
+                  fullWidth
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      background: isDarkMode ? "#1a1a1a" : "#fafafa",
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  label="State"
+                  name="address.state"
+                  value={editForm.address?.state || ""}
+                  onChange={handleEditChange}
+                  fullWidth
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      background: isDarkMode ? "#1a1a1a" : "#fafafa",
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  label="ZIP Code"
+                  name="address.zip"
+                  value={editForm.address?.zip || ""}
+                  onChange={handleEditChange}
+                  fullWidth
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      background: isDarkMode ? "#1a1a1a" : "#fafafa",
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  label="Country"
+                  name="address.country"
+                  value={editForm.address?.country || ""}
+                  onChange={handleEditChange}
+                  fullWidth
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      background: isDarkMode ? "#1a1a1a" : "#fafafa",
+                    },
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  label="Notes"
+                  id="notes"
+                  value={editForm.notes}
+                  onChange={handleEditChange}
+                  multiline
+                  rows={3}
+                  fullWidth
+                  InputProps={{
+                    startAdornment: (
+                      <Description
+                        sx={{
+                          mr: 1,
+                          color: "text.secondary",
+                          alignSelf: "flex-start",
+                          mt: 1,
+                          opacity: 0.7,
+                        }}
+                      />
+                    ),
+                  }}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      background: isDarkMode ? "#1a1a1a" : "#fafafa",
+                    },
+                  }}
+                />
+              </Grid>
+            </Grid>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 3, pt: 0 }}>
+          <Button
+            onClick={() => setEditDialogOpen(false)}
+            variant="outlined"
+            sx={{
+              borderRadius: 2,
+              px: 3,
+              borderColor: isDarkMode ? "#555" : "#ccc",
+              color: isDarkMode ? "#ffffff" : "#1a1a1a",
+            }}
           >
-            <MenuItem value="Lead">Lead</MenuItem>
-            <MenuItem value="Contacted">Contacted</MenuItem>
-            <MenuItem value="Customer">Customer</MenuItem>
-          </Select>
-        </FormControl>
-        <TextField label="Notes" id="notes" value={editForm.notes} onChange={handleEditChange} multiline rows={2} fullWidth />
-      </>
-    )}
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={() => setEditDialogOpen(false)} color="secondary">Cancel</Button>
-    <Button onClick={handleUpdate} variant="contained">Save</Button>
-  </DialogActions>
-</Dialog>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleUpdate}
+            variant="contained"
+            sx={{
+              background: isDarkMode ? "#ffffff" : "#1a1a1a",
+              color: isDarkMode ? "#1a1a1a" : "#ffffff",
+              borderRadius: 2,
+              px: 3,
+              textTransform: "none",
+              fontWeight: 400,
+              "&:hover": {
+                background: isDarkMode ? "#e0e0e0" : "#333333",
+              },
+            }}
+          >
+            Save Changes
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-
+      {/* Snackbar */}
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={3000}
+        autoHideDuration={4000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        message={snackbar.message}
-      />
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

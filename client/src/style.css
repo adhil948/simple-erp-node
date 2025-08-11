@@ -65,9 +65,9 @@ body {
   line-height: 1.7;
 }
 
-/* Main App container, centralize */
+/* Main App container, full width */
 .container {
-  max-width: 1300px;
+  width: 100%;
   background: var(--color-container-bg);
   padding: 38px 32px;
   border-radius: 16px;

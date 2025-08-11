@@ -7,7 +7,7 @@ import { useLocation,useParams,useNavigate } from 'react-router-dom';
 // Simple styles for beautification and print
 const styles = {
   container: {
-    maxWidth: 950, margin: '40px auto', background: '#f7f9fa', borderRadius: 12, boxShadow: '0 8px 32px #0002', padding: 32
+    width: '100%', margin: '40px auto', background: '#f7f9fa', borderRadius: 12, boxShadow: '0 8px 32px #0002', padding: 32
   },
   table: {
     width: '100%', marginBottom: 22, borderSpacing: 0, background: '#fff', borderRadius: 8, overflow: 'hidden'

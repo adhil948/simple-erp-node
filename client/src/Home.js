@@ -58,6 +58,7 @@ export default function Home() {
         if (!res.ok) throw new Error("API error");
         const data = await res.json();
         if (active) setStats(data);
+        console.log("Dashboard stats:", data);
       } catch (err) {
         if (active) setError("Failed to load stats.");
       } finally {
@@ -161,7 +162,7 @@ export default function Home() {
         },
         {
           label: "Invoices",
-          value: formatNumber(stats.totalInvoices ?? 0),
+          value: formatNumber(stats.totalInvoices),
           icon: <AssessmentIcon sx={{ color: "#0288d1" }} />, // deep sky blue
           color: "#e0f7fa", // pale cyan background
           onClick: () => handleCardClick("/invoices"),
@@ -335,8 +336,7 @@ export default function Home() {
             pt: 3,
             pb: 4,
             mt: 2,
-            maxWidth: 1200,
-            mx: "auto",
+            width: "100%",
             boxShadow: "0 8px 26px rgba(25,120,210,0.10)",
             background:
               theme.palette.mode === "dark"

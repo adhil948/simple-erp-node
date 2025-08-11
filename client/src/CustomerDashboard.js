@@ -154,7 +154,7 @@ export default function CustomerDashboard() {
       </Typography>
 
       {/* -------------------- Filters Card -------------------- */}
-      <Paper sx={{ p: 3, mb: 4, width: '100%', maxWidth: 1_200 }} elevation={3}>
+      <Paper sx={{ p: 3, mb: 4, width: '100%' }} elevation={3}>
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <TextField
             label="Search customers..."
@@ -225,7 +225,7 @@ export default function CustomerDashboard() {
 
       {/* -------------------- Sales Table -------------------- */}
       {sales.length > 0 && (
-        <Paper sx={{ p: 3, mb: 2, width: '100%', maxWidth: 1_200 }} elevation={3}>
+        <Paper sx={{ p: 3, mb: 2, width: '100%' }} elevation={3}>
           <Typography variant="h6" sx={{ mb: 1 }}>
             Sales for {selectedCustomer}
           </Typography>

@@ -344,16 +344,12 @@ const items = [
         >
           <Toolbar />
 
-          <Container
-            maxWidth="lg"
+          <Box
             sx={{
               flexGrow: 1,
-              bgcolor: 'background.paper',
-              color: 'text.primary',
-              borderRadius: 3,
-              boxShadow: '0 2px 20px var(--color-card-shadow, rgba(28,28,29,0.04))',
-              p: { xs: 2, md: 3, lg: 4 },
-              minHeight: 'calc(100vh - 112px - 68px)' // subtract Dock height
+              width: '100%',
+              minHeight: 'calc(100vh - 112px - 68px)', // subtract Dock height
+              p: { xs: 1, md: 2 }
             }}
           >
             <Routes>
@@ -368,7 +364,7 @@ const items = [
               <Route path="/invoices/:id" element={<Invoices />} />
               <Route path="/payments" element={<PaymentDashboard />} />
             </Routes>
-          </Container>
+          </Box>
 
           <Box
             component="footer"

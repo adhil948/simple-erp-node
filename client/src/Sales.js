@@ -205,7 +205,7 @@ const handleNavigateToCRM = () => {
       <Paper sx={{ p: 3, mb: 4 }} elevation={3}>
         <Typography variant="h4" gutterBottom align="center">Sales Module</Typography>
         <Typography variant="h6" gutterBottom align="center">Add New Sale</Typography>
-        <Box component="form" id="saleForm" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 6000 }} justifyContent="center">
+        <Box component="form" id="saleForm" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }} justifyContent="center">
           <FormControl>
             <InputLabel id="customerName-label">Customer</InputLabel>
             <Select

@@ -115,7 +115,7 @@ export default function Expenses() {
                   </Button>
 
           <Collapse in={showForm}>
-        <Box component="form" id="expenseForm" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 1200 }}>
+        <Box component="form" id="expenseForm" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
           <TextField label="Expense Name" id="name" value={form.name} onChange={handleChange} required />
           <FormControl>
             <InputLabel id="category-label">Category</InputLabel>

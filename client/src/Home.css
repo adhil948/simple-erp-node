@@ -90,9 +90,8 @@ body, html {
   align-items: center;
   gap: 24px;
   /* REMOVED width: 100%; */
-  max-width: 2000px; /* This now acts as the maximum size */
+  width: 100%; /* Full width */
   margin-bottom: 50px;
-  width: 100%; /* Re-add to ensure grid fills the max-width space */
 }
 
 /* ERP Card styles are fine */
@@ -128,8 +127,7 @@ body, html {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 16px;
   /* REMOVED width: 100%; */
-  max-width: 960px; /* This now acts as the maximum size */
-  width: 100%; /* Re-add to ensure grid fills the max-width space */
+  width: 100%; /* Full width */
 
 }
 
@@ -173,7 +171,7 @@ body {
 }
 
 .container {
-  max-width: 960px;
+  width: 100%;
   margin: 2rem auto;
   padding: 0 1rem;
   background: var(--color-container-bg);

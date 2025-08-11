@@ -180,8 +180,7 @@ export default function Inventory() {
     <Box sx={{ mt: 1 }}>
       <h1 align="center">Inventory Management</h1>
 
-      <div className="container">
-        <Paper
+      <Paper
           sx={{
             p: 3,
             mb: 4,
@@ -203,7 +202,7 @@ export default function Inventory() {
                 display: "flex",
                 flexDirection: "column",
                 gap: 2,
-                maxWidth: 1100,
+                width: '100%',
               }}
             >
               <TextField
@@ -374,7 +373,6 @@ export default function Inventory() {
             </TableContainer>
           )}
         </Paper>
-      </div>
 
       <Snackbar
         open={snackbar.open}
