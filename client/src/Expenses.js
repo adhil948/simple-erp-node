@@ -111,7 +111,7 @@ export default function Expenses() {
                     onClick={() => setShowForm(prev => !prev)}
                     startIcon={showForm ? <Remove /> : <Add />}
                   >
-                    {showForm ? 'Hide Form' : 'Add New lead'}
+                    {showForm ? 'Hide Form' : 'Add New Expense'}
                   </Button>
 
           <Collapse in={showForm}>
